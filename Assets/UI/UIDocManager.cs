@@ -8,9 +8,9 @@ using UnityEngine.UIElements;
 public class UIDocManager : MonoBehaviour
 {
     public static UIDocManager Instance { get; private set; }
-    public UIDocument document;
+    private UIDocument document;
     private static VisualElement root;
-    public HUD_Overlay hudOverlay;
+    private HUD_Overlay hudOverlay;
     private List<VisualElement> rayCastBlockers = new List<VisualElement>();
 
     public UIDocManager()
@@ -20,6 +20,7 @@ public class UIDocManager : MonoBehaviour
 
     private void Awake()
     {
+        document = GetComponent<UIDocument>();
         root = document.rootVisualElement;
         hudOverlay = root.Q<HUD_Overlay>();
     }
@@ -71,5 +72,25 @@ public class UIDocManager : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public void ShowEntityHUD(EntityController entity)
+    {
+        hudOverlay.ShowPanel(PanelType.EntityThumbnail);
+        hudOverlay.SetEntityThumbnail(entity.thumbnail);
+
+        hudOverlay.ShowPanel(PanelType.EntityInfo);
+        hudOverlay.SetEntityName(entity.displayName);
+        hudOverlay.SetEntityDescription(entity.description);
+    }
+
+    public void HideEntityHUD()
+    {
+        hudOverlay.HidePanel(PanelType.EntityThumbnail);
+        hudOverlay.SetEntityThumbnail(null);
+
+        hudOverlay.HidePanel(PanelType.EntityInfo);
+        hudOverlay.SetEntityName(string.Empty);
+        hudOverlay.SetEntityDescription(string.Empty);
     }
 }

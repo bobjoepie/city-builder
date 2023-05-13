@@ -41,6 +41,9 @@ public enum KeyAction
     Confirm,
     Cancel,
 
+    RotateLeft,
+    RotateRight,
+
     ZoomIn,
     ZoomOut,
     ResetZoom,
@@ -103,6 +106,9 @@ public struct DefaultActionMaps
         KeyAction.Down,
         KeyAction.Right,
 
+        KeyAction.RotateLeft,
+        KeyAction.RotateRight,
+
         KeyAction.ZoomIn,
         KeyAction.ZoomOut,
         KeyAction.ResetZoom,
@@ -156,6 +162,9 @@ public class InputManager : MonoBehaviour
 
         {KeyAction.Confirm              ,       KeyCode.Mouse0},
         {KeyAction.Cancel               ,       KeyCode.Mouse1},
+
+        {KeyAction.RotateLeft           ,       KeyCode.LeftBracket},
+        {KeyAction.RotateRight          ,       KeyCode.RightBracket},
 
         {KeyAction.ZoomIn               ,       KeyCode.PageUp},
         {KeyAction.ZoomOut              ,       KeyCode.PageDown},

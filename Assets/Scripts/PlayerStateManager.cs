@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerStateManager : MonoBehaviour, IInputController
 {
     public EntityController selectedEntity;
+    public Material selectedMaterial;
 
     private InputManager inputManager;
     private Camera mainCamera;
@@ -37,9 +38,8 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             }
             else
             {
-                selectedEntity = null;
+                HandleDeselection();
             }
-            Debug.Log(selectedEntity);
         }
     }
 
@@ -51,12 +51,25 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         }
         else
         {
-            selectedEntity = null;
+            HandleDeselection();
         }
+    }
+
+    private void HandleDeselection()
+    {
+        if (selectedEntity == null) return;
+        selectedEntity.Deselect();
+        selectedEntity = null;
+        UIDocManager.Instance.HideEntityHUD();
     }
 
     private void HandleBuildingSelection(BuildingController building)
     {
+        if (selectedEntity == building) return;
+        if (selectedEntity != null) selectedEntity.Deselect();
+
         selectedEntity = building;
+        selectedEntity.Select();
+        UIDocManager.Instance.ShowEntityHUD(building);
     }
 }

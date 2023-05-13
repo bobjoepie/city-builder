@@ -1,6 +1,23 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/GameHUDStyle.uss?fileID=7433441132597879392&amp;guid=d0961905e9ecfbd4abe2bc8b67d5d91d&amp;type=3#GameHUDStyle" />
     <HUD_Overlay style="width: 100%; height: 100%;">
-        <ui:VisualElement class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 255); position: absolute; bottom: 0;" />
+        <ui:VisualElement class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 0.59); position: absolute; bottom: 0; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: row;">
+            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 80%; height: 100%; margin-right: 15px;" />
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 20%; height: 100%;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="width: 60%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
+                <ui:VisualElement name="EntityThumbnail" style="background-color: rgb(84, 84, 84); width: 20%; height: 100%; margin-right: 15px; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconemptygravatar.png?fileID=2800000&amp;guid=9aebd705574f9e642aef1e5f59b3e4d8&amp;type=3#d_iconemptygravatar&apos;);" />
+                <ui:VisualElement name="EntityInfo" style="background-color: rgb(84, 84, 84); width: 80%; height: 100%; align-items: center; justify-content: center;">
+                    <ui:VisualElement style="background-color: rgba(0, 0, 0, 0); height: 35%; width: 100%; border-bottom-width: 5px; border-left-color: rgb(58, 58, 58); border-right-color: rgb(58, 58, 58); border-top-color: rgb(58, 58, 58); border-bottom-color: rgb(58, 58, 58);">
+                        <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="EntityName" style="width: 100%; font-size: 40px; -unity-text-align: upper-center; color: rgb(224, 224, 224); -unity-font-style: bold; height: 100%;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="background-color: rgba(0, 0, 0, 0); height: 65%; width: 100%;">
+                        <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="EntityDescription" style="width: 100%; font-size: 40px; -unity-text-align: middle-center; color: rgb(224, 224, 224); -unity-font-style: bold; height: 100%;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px;" />
+        </ui:VisualElement>
     </HUD_Overlay>
 </ui:UXML>

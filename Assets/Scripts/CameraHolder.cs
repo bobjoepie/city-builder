@@ -6,6 +6,7 @@ public class CameraHolder : MonoBehaviour, IInputController
 {
     public InputManager input;
     public float cameraSpeed = 10.0f;
+    public float rotateSpeed = 120.0f;
     public Camera mainCamera;
 
     // Start is called before the first frame update
@@ -21,6 +22,7 @@ public class CameraHolder : MonoBehaviour, IInputController
     void Update()
     {
         HandleMovement();
+        HandleRotation();
         HandleZoom();
     }
 
@@ -60,6 +62,28 @@ public class CameraHolder : MonoBehaviour, IInputController
         }
 
         transform.position += new Vector3(res.x * cameraSpeed * Time.deltaTime, 0, res.z * cameraSpeed * Time.deltaTime);
+    }
+
+    private void HandleRotation()
+    {
+        var horizontal = 0f;
+        if (input.PollKey(this, KeyAction.RotateLeft))
+        {
+            horizontal += 1f;
+        }
+        if (input.PollKey(this, KeyAction.RotateRight))
+        {
+            horizontal -= 1f;
+        }
+
+        if (input.PollKeyDown(this, KeyAction.ResetZoom))
+        {
+            transform.rotation = Quaternion.identity;
+        }
+
+        if (horizontal == 0f) return;
+
+        transform.Rotate(0, horizontal * rotateSpeed * Time.deltaTime, 0);
     }
 
     private void HandleZoom()
