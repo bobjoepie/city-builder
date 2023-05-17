@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/GameHUDStyle.uss?fileID=7433441132597879392&amp;guid=d0961905e9ecfbd4abe2bc8b67d5d91d&amp;type=3#GameHUDStyle" />
     <HUD_Overlay style="width: 100%; height: 100%;">
-        <ui:VisualElement class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 0.59); position: absolute; bottom: 0; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: row;">
+        <ui:VisualElement name="bottom-toolbar" class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 0.59); position: absolute; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: row; bottom: 0;">
             <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
                 <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 80%; height: 100%; margin-right: 15px;" />
                 <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 20%; height: 100%;" />
@@ -17,7 +17,18 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px;" />
+            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px;">
+                <ui:Button text="Build" display-tooltip-when-elided="true" name="build-button" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; font-size: 55px; -unity-font-style: bold;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="build-modal" class="blocker" style="flex-grow: 1; background-color: rgba(36, 36, 36, 0.59); position: absolute; width: 20%; height: 50%; align-self: flex-end; top: 25%; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; visibility: visible;">
+            <ui:VisualElement name="build-menu" style="background-color: rgba(36, 36, 36, 0.59); position: relative; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; align-items: stretch; justify-content: space-around; flex-direction: column; flex-wrap: nowrap; height: 100%; width: 100%; visibility: visible;">
+                <ui:Button display-tooltip-when-elided="true" name="build1" focusable="false" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 5px; font-size: 55px; -unity-font-style: bold; overflow: hidden; flex-grow: 1;" />
+                <ui:Button display-tooltip-when-elided="true" name="build2" focusable="false" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 5px; font-size: 55px; -unity-font-style: bold; flex-grow: 1;" />
+                <ui:Button text="Build" display-tooltip-when-elided="true" name="build3" focusable="false" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 5px; font-size: 55px; -unity-font-style: bold; flex-grow: 1; align-self: auto;" />
+                <ui:Button text="Build" display-tooltip-when-elided="true" name="build4" focusable="false" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 5px; font-size: 55px; -unity-font-style: bold; flex-grow: 1;" />
+                <ui:Button text="Build" display-tooltip-when-elided="true" name="build5" focusable="false" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; font-size: 55px; -unity-font-style: bold; flex-grow: 1;" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </HUD_Overlay>
 </ui:UXML>

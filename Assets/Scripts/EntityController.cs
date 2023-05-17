@@ -30,6 +30,8 @@ public class EntityController : MonoBehaviour
     public void Select()
     {
         material.SetFloat("_Selected", 1);
+        var buildings = new List<string>() { "test", "test2", "test3" };
+        UIDocManager.Instance.ShowBuildHUD(buildings);
     }
 
     public void Deselect()

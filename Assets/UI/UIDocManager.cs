@@ -93,4 +93,10 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityName(string.Empty);
         hudOverlay.SetEntityDescription(string.Empty);
     }
+
+    public void ShowBuildHUD(List<string> buildings)
+    {
+        hudOverlay.SetBuildMenu(buildings);
+        //hudOverlay.ShowPanel(PanelType.BuildMenu);
+    }
 }

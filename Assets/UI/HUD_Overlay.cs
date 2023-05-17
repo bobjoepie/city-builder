@@ -13,6 +13,8 @@ public class HUD_Overlay : VisualElement
     public Label entityName;
     public Label entityDescription;
 
+    public VisualElement buildModal;
+
     public new class UxmlFactory : UxmlFactory<HUD_Overlay, UxmlTraits> { }
 
     public HUD_Overlay()
@@ -24,8 +26,24 @@ public class HUD_Overlay : VisualElement
     {
         InitBlockers();
         InitEntityInfo();
+        InitBuildMenu();
 
         this.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
+    }
+
+    private void InitBuildMenu()
+    {
+        buildModal = this.Q("build-modal");
+
+        var buildMenuButton = this.Q<Button>("build-button");
+        buildMenuButton.clickable.clicked += () => { TogglePanel(PanelType.BuildMenu); };
+        //var buildButtons = buildMenu.Children().Where(c => c is Button).Cast<Button>().ToList();
+        //for (int i = 0; i < buildButtons.Count; i++)
+        //{
+        //    int ii = i;
+        //    buildButtons[ii].clickable.clicked += () => { Debug.Log(ii); };
+        //}
+        buildModal.style.visibility = Visibility.Hidden;
     }
 
     private void InitBlockers()
@@ -103,6 +121,9 @@ public class HUD_Overlay : VisualElement
                 case PanelType.EntityThumbnail:
                     entityThumbnail.style.visibility = Visibility.Visible;
                     break;
+                case PanelType.BuildMenu:
+                    buildModal.style.visibility = Visibility.Visible;
+                    break;
             }
 
         }).Invoke();
@@ -127,9 +148,48 @@ public class HUD_Overlay : VisualElement
                 case PanelType.EntityThumbnail:
                     entityThumbnail.style.visibility = Visibility.Hidden;
                     break;
+                case PanelType.BuildMenu:
+                    buildModal.style.visibility = Visibility.Hidden;
+                    break;
             }
 
         }).Invoke();
+    }
+
+    public void TogglePanel(PanelType panelType)
+    {
+        switch (panelType)
+        {
+            case PanelType.Button:
+                //buttonPanel.style.visibility = Visibility.Hidden;
+                break;
+            case PanelType.Card:
+                //cardPanel.style.visibility = Visibility.Hidden;
+                break;
+            case PanelType.EntityInfo:
+                if (IsPanelHidden(entityInfo)) 
+                    ShowPanel(panelType);
+                else 
+                    HidePanel(panelType);
+                break;
+            case PanelType.EntityThumbnail:
+                if (IsPanelHidden(entityThumbnail))
+                    ShowPanel(panelType);
+                else
+                    HidePanel(panelType);
+                break;
+            case PanelType.BuildMenu:
+                if (IsPanelHidden(buildModal))
+                    ShowPanel(panelType);
+                else
+                    HidePanel(panelType);
+                break;
+        }
+    }
+
+    public bool IsPanelHidden(VisualElement element)
+    {
+        return element.style.visibility == Visibility.Hidden;
     }
 
     public void SetEntityThumbnail(Texture2D image)
@@ -146,6 +206,29 @@ public class HUD_Overlay : VisualElement
     {
         entityDescription.text = description;
     }
+
+    public void SetBuildMenu(List<string> buildings)
+    {
+        ClearBuildMenu();
+        var buildButtons = buildModal.Q("build-menu").Children().Where(c => c is Button).Cast<Button>().ToList();
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            int ii = i;
+            buildButtons[ii].clickable = new Clickable(() => { });
+            buildButtons[ii].clickable.clicked += () => { Debug.Log($"Built {buildings[ii]}"); };
+            buildButtons[ii].text = buildings[ii];
+        }
+    }
+
+    public void ClearBuildMenu()
+    {
+        var buildButtons = buildModal.Q("build-menu").Children().Where(c => c is Button).Cast<Button>().ToList();
+        foreach (var button in buildButtons)
+        {
+            button.clickable = null;
+            button.text = string.Empty;
+        }
+    }
 }
 
 public enum PanelType
@@ -153,5 +236,6 @@ public enum PanelType
     Button,
     Card,
     EntityInfo,
-    EntityThumbnail
+    EntityThumbnail,
+    BuildMenu
 }
