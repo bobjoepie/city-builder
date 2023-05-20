@@ -41,6 +41,8 @@ public enum KeyAction
     Confirm,
     Cancel,
 
+    Rotate,
+
     RotateLeft,
     RotateRight,
 
@@ -162,6 +164,8 @@ public class InputManager : MonoBehaviour
 
         {KeyAction.Confirm              ,       KeyCode.Mouse0},
         {KeyAction.Cancel               ,       KeyCode.Mouse1},
+
+        {KeyAction.Rotate               ,       KeyCode.R},
 
         {KeyAction.RotateLeft           ,       KeyCode.LeftBracket},
         {KeyAction.RotateRight          ,       KeyCode.RightBracket},

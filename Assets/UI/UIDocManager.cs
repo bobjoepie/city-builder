@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,21 +24,25 @@ public class UIDocManager : MonoBehaviour
         document = GetComponent<UIDocument>();
         root = document.rootVisualElement;
         hudOverlay = root.Q<HUD_Overlay>();
+        hudOverlay.InitHUD();
     }
 
     private void Start()
     {
-        hudOverlay.HidePanel(PanelType.Button);
+
     }
 
     public void AddRaycastBlocker(VisualElement element)
     {
-        UniTask.Action(async () =>
-        {
-            await UniTask.NextFrame();
-            rayCastBlockers.Add(element);
+        rayCastBlockers.Add(element);
+    }
 
-        }).Invoke();
+    public void RemoveRaycastBlocker(VisualElement element)
+    {
+        if (rayCastBlockers.Contains(element))
+        {
+            rayCastBlockers.Remove(element);
+        }
     }
 
     public bool IsHoveringOverUI()
@@ -94,9 +99,15 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityDescription(string.Empty);
     }
 
-    public void ShowBuildHUD(List<string> buildings)
+    public void ShowBuildHUD(List<BuildingController> buildings, Action<BuildingController> buildAction)
     {
-        hudOverlay.SetBuildMenu(buildings);
+        hudOverlay.SetBuildMenu(buildings, buildAction);
         //hudOverlay.ShowPanel(PanelType.BuildMenu);
+    }
+
+    public void SetConfirmationModalButtons(Action acceptAction, Action declineAction)
+    {
+        hudOverlay.SetConfirmationModalButtons(acceptAction, declineAction);
+        hudOverlay.ShowPanel(PanelType.ConfirmationModal);
     }
 }

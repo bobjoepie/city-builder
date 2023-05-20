@@ -1,14 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStateManager : MonoBehaviour, IInputController
 {
+    public static PlayerStateManager Instance;
     public EntityController selectedEntity;
     public Material selectedMaterial;
 
     private InputManager inputManager;
     private Camera mainCamera;
+
+    private Action pendingAction;
+    private Action cancelAction;
+
+    private PlayerStateManager()
+    {
+        Instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -30,7 +40,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
 
     private void CheckInputs()
     {
-        if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.LeftClick))
+        if (inputManager.PollKeyDownIgnoreUI(this, KeyAction.LeftClick))
         {
             if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out var hit, Mathf.Infinity))
             {
@@ -40,6 +50,15 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             {
                 HandleDeselection();
             }
+        }
+
+        if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Confirm))
+        {
+            CompletePendingAction();
+        }
+        else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel))
+        {
+            CancelPendingAction();
         }
     }
 
@@ -71,5 +90,58 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         selectedEntity = building;
         selectedEntity.Select();
         UIDocManager.Instance.ShowEntityHUD(building);
+    }
+
+    public void SetConfirmation(Action acceptAction)
+    {
+        inputManager.HoldActionMap(this);
+        UIDocManager.Instance.SetConfirmationModalButtons(() => AcceptConfirmation(acceptAction), DeclineConfirmation);
+    }
+
+    public void AcceptConfirmation(Action action)
+    {
+        inputManager.ReleaseActionMap(this);
+        action.Invoke();
+    }
+
+    public void DeclineConfirmation()
+    {
+        inputManager.ReleaseActionMap(this);
+    }
+
+    public void CancelConfirmation()
+    {
+        inputManager.ReleaseActionMap(this);
+    }
+
+    public void StartPendingAction(Action action, Action cancellationAction)
+    {
+        pendingAction = action;
+        cancelAction = cancellationAction;
+        inputManager.HoldActionMap(this);
+        inputManager.Register(this, DefaultActionMaps.ConfirmationActions);
+    }
+
+    public void CompletePendingAction()
+    {
+        if (pendingAction == null)
+        {
+            CancelPendingAction();
+            return;
+        }
+        inputManager.ReleaseActionMap(this);
+        pendingAction.Invoke();
+        pendingAction = null;
+        cancelAction = null;
+        inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);
+    }
+
+    public void CancelPendingAction()
+    {
+        inputManager.ReleaseActionMap(this);
+        cancelAction.Invoke();
+        pendingAction = null;
+        cancelAction = null;
+        inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);
     }
 }

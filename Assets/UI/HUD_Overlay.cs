@@ -8,12 +8,18 @@ using UnityEngine.UIElements;
 
 public class HUD_Overlay : VisualElement
 {
+    public VisualElement bottomToolbar;
+
     public VisualElement entityThumbnail;
     public VisualElement entityInfo;
     public Label entityName;
     public Label entityDescription;
 
     public VisualElement buildModal;
+
+    public VisualElement confirmationModal;
+    public Button confirmationAcceptButton;
+    public Button confirmationDeclineButton;
 
     public new class UxmlFactory : UxmlFactory<HUD_Overlay, UxmlTraits> { }
 
@@ -24,11 +30,32 @@ public class HUD_Overlay : VisualElement
 
     void OnGeometryChange(GeometryChangedEvent evt)
     {
-        InitBlockers();
+        this.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
+    }
+
+    public void InitHUD()
+    {
+        //InitBlockers();
+        InitBottomToolbar();
         InitEntityInfo();
         InitBuildMenu();
+        InitConfirmationModal();
+    }
 
-        this.UnregisterCallback<GeometryChangedEvent>(OnGeometryChange);
+    private void InitBottomToolbar()
+    {
+        bottomToolbar = this.Q("bottom-toolbar");
+
+        ShowPanel(PanelType.BottomToolbar);
+    }
+
+    private void InitConfirmationModal()
+    {
+        confirmationModal = this.Q("confirmation-modal");
+        confirmationAcceptButton = confirmationModal.Q<Button>("confirmation-accept-button");
+        confirmationDeclineButton = confirmationModal.Q<Button>("confirmation-decline-button");
+
+        HidePanel(PanelType.ConfirmationModal);
     }
 
     private void InitBuildMenu()
@@ -43,7 +70,7 @@ public class HUD_Overlay : VisualElement
         //    int ii = i;
         //    buildButtons[ii].clickable.clicked += () => { Debug.Log(ii); };
         //}
-        buildModal.style.visibility = Visibility.Hidden;
+        HidePanel(PanelType.BuildMenu);
     }
 
     private void InitBlockers()
@@ -72,22 +99,12 @@ public class HUD_Overlay : VisualElement
 
     public void Show()
     {
-        UniTask.Action(async () =>
-        {
-            await UniTask.NextFrame();
-            this.style.visibility = Visibility.Visible;
-
-        }).Invoke();
+        this.style.visibility = Visibility.Visible;
     }
 
     public void Hide()
     {
-        UniTask.Action(async () =>
-        {
-            await UniTask.NextFrame();
-            this.style.visibility = Visibility.Hidden;
-
-        }).Invoke();
+        this.style.visibility = Visibility.Hidden;
     }
 
     public void ToggleView()
@@ -104,67 +121,63 @@ public class HUD_Overlay : VisualElement
 
     public void ShowPanel(PanelType panelType)
     {
-        UniTask.Action(async () =>
+        switch (panelType)
         {
-            await UniTask.NextFrame();
-            switch (panelType)
-            {
-                case PanelType.Button:
-                    //buttonPanel.style.visibility = Visibility.Visible;
-                    break;
-                case PanelType.Card:
-                    //cardPanel.style.visibility = Visibility.Visible;
-                    break;
-                case PanelType.EntityInfo:
-                    entityInfo.style.visibility = Visibility.Visible;
-                    break;
-                case PanelType.EntityThumbnail:
-                    entityThumbnail.style.visibility = Visibility.Visible;
-                    break;
-                case PanelType.BuildMenu:
-                    buildModal.style.visibility = Visibility.Visible;
-                    break;
-            }
-
-        }).Invoke();
+            case PanelType.BottomToolbar:
+                bottomToolbar.style.visibility = Visibility.Visible;
+                UIDocManager.Instance.AddRaycastBlocker(bottomToolbar);
+                break;
+            case PanelType.EntityInfo:
+                entityInfo.style.visibility = Visibility.Visible;
+                break;
+            case PanelType.EntityThumbnail:
+                entityThumbnail.style.visibility = Visibility.Visible;
+                break;
+            case PanelType.BuildMenu:
+                buildModal.style.visibility = Visibility.Visible;
+                UIDocManager.Instance.AddRaycastBlocker(buildModal);
+                break;
+            case PanelType.ConfirmationModal:
+                confirmationModal.style.visibility = Visibility.Visible;
+                UIDocManager.Instance.AddRaycastBlocker(confirmationModal);
+                break;
+        }
     }
 
     public void HidePanel(PanelType panelType)
     {
-        UniTask.Action(async () =>
+        switch (panelType)
         {
-            await UniTask.NextFrame();
-            switch (panelType)
-            {
-                case PanelType.Button:
-                    //buttonPanel.style.visibility = Visibility.Hidden;
-                    break;
-                case PanelType.Card:
-                    //cardPanel.style.visibility = Visibility.Hidden;
-                    break;
-                case PanelType.EntityInfo:
-                    entityInfo.style.visibility = Visibility.Hidden;
-                    break;
-                case PanelType.EntityThumbnail:
-                    entityThumbnail.style.visibility = Visibility.Hidden;
-                    break;
-                case PanelType.BuildMenu:
-                    buildModal.style.visibility = Visibility.Hidden;
-                    break;
-            }
-
-        }).Invoke();
+            case PanelType.BottomToolbar:
+                bottomToolbar.style.visibility = Visibility.Hidden;
+                UIDocManager.Instance.RemoveRaycastBlocker(bottomToolbar);
+                break;
+            case PanelType.EntityInfo:
+                entityInfo.style.visibility = Visibility.Hidden;
+                break;
+            case PanelType.EntityThumbnail:
+                entityThumbnail.style.visibility = Visibility.Hidden;
+                break;
+            case PanelType.BuildMenu:
+                buildModal.style.visibility = Visibility.Hidden;
+                UIDocManager.Instance.RemoveRaycastBlocker(buildModal);
+                break;
+            case PanelType.ConfirmationModal:
+                confirmationModal.style.visibility = Visibility.Hidden;
+                UIDocManager.Instance.RemoveRaycastBlocker(confirmationModal);
+                break;
+        }
     }
 
     public void TogglePanel(PanelType panelType)
     {
         switch (panelType)
         {
-            case PanelType.Button:
-                //buttonPanel.style.visibility = Visibility.Hidden;
-                break;
-            case PanelType.Card:
-                //cardPanel.style.visibility = Visibility.Hidden;
+            case PanelType.BottomToolbar:
+                if (IsPanelHidden(bottomToolbar))
+                    ShowPanel(panelType);
+                else
+                    HidePanel(panelType);
                 break;
             case PanelType.EntityInfo:
                 if (IsPanelHidden(entityInfo)) 
@@ -180,6 +193,12 @@ public class HUD_Overlay : VisualElement
                 break;
             case PanelType.BuildMenu:
                 if (IsPanelHidden(buildModal))
+                    ShowPanel(panelType);
+                else
+                    HidePanel(panelType);
+                break;
+            case PanelType.ConfirmationModal:
+                if (IsPanelHidden(confirmationModal))
                     ShowPanel(panelType);
                 else
                     HidePanel(panelType);
@@ -207,35 +226,53 @@ public class HUD_Overlay : VisualElement
         entityDescription.text = description;
     }
 
-    public void SetBuildMenu(List<string> buildings)
+    public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
     {
         ClearBuildMenu();
-        var buildButtons = buildModal.Q("build-menu").Children().Where(c => c is Button).Cast<Button>().ToList();
+        var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
         for (int i = 0; i < buildings.Count; i++)
         {
+            if (i >= buildButtons.Count) return;
             int ii = i;
             buildButtons[ii].clickable = new Clickable(() => { });
-            buildButtons[ii].clickable.clicked += () => { Debug.Log($"Built {buildings[ii]}"); };
-            buildButtons[ii].text = buildings[ii];
+            buildButtons[ii].clickable.clicked += () => buildAction.Invoke(buildings[ii]);
+            buildButtons[ii].text = buildings[ii].displayName;
         }
     }
 
     public void ClearBuildMenu()
     {
-        var buildButtons = buildModal.Q("build-menu").Children().Where(c => c is Button).Cast<Button>().ToList();
+        var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
         foreach (var button in buildButtons)
         {
             button.clickable = null;
             button.text = string.Empty;
         }
     }
+
+    public void SetConfirmationModalButtons(Action acceptAction, Action declineAction)
+    {
+        confirmationAcceptButton.clickable = new Clickable(() => { });
+        confirmationAcceptButton.clickable.clicked += () =>
+        {
+            HidePanel(PanelType.ConfirmationModal);
+            acceptAction.Invoke();
+        };
+
+        confirmationDeclineButton.clickable = new Clickable(() => { });
+        confirmationDeclineButton.clickable.clicked += () =>
+        {
+            HidePanel(PanelType.ConfirmationModal);
+            declineAction.Invoke();
+        };
+    }
 }
 
 public enum PanelType
 {
-    Button,
-    Card,
     EntityInfo,
     EntityThumbnail,
-    BuildMenu
+    BottomToolbar,
+    BuildMenu,
+    ConfirmationModal
 }
