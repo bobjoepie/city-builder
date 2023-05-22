@@ -8,6 +8,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     public static PlayerStateManager Instance;
     public EntityController selectedEntity;
     public Material selectedMaterial;
+    public Texture2D deleteIcon;
 
     private InputManager inputManager;
     private Camera mainCamera;
@@ -80,7 +81,8 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         if (selectedEntity == null) return;
         selectedEntity.Deselect();
         selectedEntity = null;
-        UIDocManager.Instance.HideEntityHUD();
+        UIDocManager.Instance.ClearEntityHUD();
+        UIDocManager.Instance.ClearToolbarButtons();
     }
 
     private void HandleBuildingSelection(BuildingController building)
@@ -90,7 +92,21 @@ public class PlayerStateManager : MonoBehaviour, IInputController
 
         selectedEntity = building;
         selectedEntity.Select();
-        UIDocManager.Instance.ShowEntityHUD(building);
+        UIDocManager.Instance.SetEntityHUD(building);
+
+        var toolbarActions = new List<ToolbarAction>();
+
+        var deleteAction = new ToolbarAction();
+        deleteAction.entity = building;
+        deleteAction.icon = deleteIcon;
+        deleteAction.action = () =>
+        {
+            HandleDeselection();
+            DestroyImmediate(building.gameObject);
+        };
+        toolbarActions.Add(deleteAction);
+
+        UIDocManager.Instance.SetToolbarButtons(toolbarActions);
     }
 
     public void SetConfirmation(Action acceptAction)

@@ -16,7 +16,7 @@ public class ResourceManager : MonoBehaviour
 
     private void Start()
     {
-        UIDocManager.Instance.ShowBuildHUD(buildingPrefabs, BuildPendingHandler);
+        UIDocManager.Instance.SetBuildMenu(buildingPrefabs, BuildPendingHandler);
     }
 
     private void BuildPendingHandler(BuildingController building)

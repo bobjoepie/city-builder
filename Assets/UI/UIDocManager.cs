@@ -27,11 +27,6 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.InitHUD();
     }
 
-    private void Start()
-    {
-
-    }
-
     public void AddRaycastBlocker(VisualElement element)
     {
         rayCastBlockers.Add(element);
@@ -79,7 +74,7 @@ public class UIDocManager : MonoBehaviour
         }
     }
 
-    public void ShowEntityHUD(EntityController entity)
+    public void SetEntityHUD(EntityController entity)
     {
         hudOverlay.ShowPanel(PanelType.EntityThumbnail);
         hudOverlay.SetEntityThumbnail(entity.thumbnail);
@@ -89,7 +84,7 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityDescription(entity.description);
     }
 
-    public void HideEntityHUD()
+    public void ClearEntityHUD()
     {
         hudOverlay.HidePanel(PanelType.EntityThumbnail);
         hudOverlay.SetEntityThumbnail(null);
@@ -99,15 +94,30 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityDescription(string.Empty);
     }
 
-    public void ShowBuildHUD(List<BuildingController> buildings, Action<BuildingController> buildAction)
+    public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
     {
         hudOverlay.SetBuildMenu(buildings, buildAction);
         //hudOverlay.ShowPanel(PanelType.BuildMenu);
+    }
+
+    public void ClearBuildMenu()
+    {
+        hudOverlay.ClearBuildMenu();
     }
 
     public void SetConfirmationModalButtons(Action acceptAction, Action declineAction)
     {
         hudOverlay.SetConfirmationModalButtons(acceptAction, declineAction);
         hudOverlay.ShowPanel(PanelType.ConfirmationModal);
+    }
+
+    public void SetToolbarButtons(List<ToolbarAction> actions)
+    {
+        hudOverlay.SetToolbarButtons(actions);
+    }
+
+    public void ClearToolbarButtons()
+    {
+        hudOverlay.ClearToolbarButtons();
     }
 }

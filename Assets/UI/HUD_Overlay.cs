@@ -9,11 +9,11 @@ using UnityEngine.UIElements;
 public class HUD_Overlay : VisualElement
 {
     public VisualElement bottomToolbar;
-
     public VisualElement entityThumbnail;
     public VisualElement entityInfo;
     public Label entityName;
     public Label entityDescription;
+    public List<Button> toolbarButtons;
 
     public VisualElement buildModal;
 
@@ -45,7 +45,7 @@ public class HUD_Overlay : VisualElement
     private void InitBottomToolbar()
     {
         bottomToolbar = this.Q("bottom-toolbar");
-
+        toolbarButtons = bottomToolbar.Q("toolbar-buttons").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
         ShowPanel(PanelType.BottomToolbar);
     }
 
@@ -64,6 +64,7 @@ public class HUD_Overlay : VisualElement
 
         var buildMenuButton = this.Q<Button>("build-button");
         buildMenuButton.clickable.clicked += () => { TogglePanel(PanelType.BuildMenu); };
+        buildMenuButton.AllowUIButtonKeyModifiers();
         //var buildButtons = buildMenu.Children().Where(c => c is Button).Cast<Button>().ToList();
         //for (int i = 0; i < buildButtons.Count; i++)
         //{
@@ -232,10 +233,11 @@ public class HUD_Overlay : VisualElement
         var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
         for (int i = 0; i < buildings.Count; i++)
         {
-            if (i >= buildButtons.Count) return;
+            if (i >= buildButtons.Count) break;
             int ii = i;
             buildButtons[ii].clickable = new Clickable(() => { });
             buildButtons[ii].clickable.clicked += () => buildAction.Invoke(buildings[ii]);
+            buildButtons[ii].AllowUIButtonKeyModifiers();
             buildButtons[ii].text = buildings[ii].displayName;
         }
     }
@@ -245,7 +247,7 @@ public class HUD_Overlay : VisualElement
         var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
         foreach (var button in buildButtons)
         {
-            button.clickable = null;
+            button.clickable = new Clickable(() => { });
             button.text = string.Empty;
         }
     }
@@ -258,6 +260,7 @@ public class HUD_Overlay : VisualElement
             HidePanel(PanelType.ConfirmationModal);
             acceptAction.Invoke();
         };
+        confirmationAcceptButton.AllowUIButtonKeyModifiers();
 
         confirmationDeclineButton.clickable = new Clickable(() => { });
         confirmationDeclineButton.clickable.clicked += () =>
@@ -265,6 +268,32 @@ public class HUD_Overlay : VisualElement
             HidePanel(PanelType.ConfirmationModal);
             declineAction.Invoke();
         };
+        confirmationDeclineButton.AllowUIButtonKeyModifiers();
+    }
+
+    public void SetToolbarButtons(List<ToolbarAction> toolbarActions)
+    {
+        for (int i = 0; i < toolbarButtons.Count; i++)
+        {
+            int ii = i;
+            toolbarButtons[ii].clickable = new Clickable(() => { });
+            toolbarButtons[ii].style.backgroundImage = null;
+
+            if (i >= toolbarActions.Count) continue;
+
+            toolbarButtons[ii].clickable.clicked += () => toolbarActions[ii].action.Invoke();
+            toolbarButtons[ii].AllowUIButtonKeyModifiers();
+            toolbarButtons[ii].style.backgroundImage = toolbarActions[ii].icon;
+        }
+    }
+
+    public void ClearToolbarButtons()
+    {
+        foreach (var button in toolbarButtons)
+        {
+            button.clickable = new Clickable(() => { });
+            button.style.backgroundImage = null;
+        }
     }
 }
 
@@ -275,4 +304,16 @@ public enum PanelType
     BottomToolbar,
     BuildMenu,
     ConfirmationModal
+}
+
+public enum ToolButtonType
+{
+    DestroySelected
+}
+
+public class ToolbarAction
+{
+    public Action action;
+    public Texture2D icon;
+    public EntityController entity;
 }

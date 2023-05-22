@@ -62,61 +62,16 @@ public static class PoloUtils
         return (Arr.Length == j) ? Arr[0] : Arr[j];
     }
 
-    //public static bool HasTag(this BG_EntityTags ownerTag, BG_EntityTags tagToCheck)
-    //{
-    //    var comboTag = ownerTag & tagToCheck;
-    //    var result = ownerTag != BG_EntityTags.None && ownerTag.HasFlag(comboTag);
-    //    return comboTag != BG_EntityTags.None && result;
-    //}
-
-    //public static bool HasTag(this BG_EntityController owner, BG_EntityTags tagToCheck)
-    //{
-    //    return HasTag(owner.attributes.tags, tagToCheck);
-    //}
-
-    //public static bool HasTag(this BG_EntityTags ownerTag, BG_EntityController entity)
-    //{
-    //    return HasTag(ownerTag, entity.attributes.tags);
-    //}
-
-    //public static bool MatchParentTag(this BG_EntityTags parentTag, BG_EntityTags entity1, BG_EntityTags entity2)
-    //{
-    //    return parentTag.HasTag(entity1) && parentTag.HasTag(entity2);
-    //}
-
-    //public static BG_EntityTags GetTagUnderParent(this BG_EntityTags child, BG_EntityTags parent)
-    //{
-    //    var comboTag = child & parent;
-    //    return comboTag;
-    //}
-
-    //public static bool IsOpposingTag(this BG_EntityTags parentTag, BG_EntityTags tag1, BG_EntityTags tag2)
-    //{
-    //    var matchParents = MatchParentTag(parentTag, tag1, tag2);
-    //    var childTag1 = tag1.GetTagUnderParent(parentTag);
-    //    var childTag2 = tag2.GetTagUnderParent(parentTag);
-    //    var isSameTag = childTag1.HasTag(childTag2);
-    //    return matchParents && !isSameTag;
-    //}
-
-    //public static bool IsOpposingTag(this BG_EntityTags parentTag, BG_EntityController entity1, BG_EntityController entity2)
-    //{
-    //    return IsOpposingTag(parentTag, entity1.attributes.tags, entity2.attributes.tags);
-    //}
-
-    //public static bool IsSameTag(this BG_EntityTags parentTag, BG_EntityTags tag1, BG_EntityTags tag2)
-    //{
-    //    var matchParents = MatchParentTag(parentTag, tag1, tag2);
-    //    var childTag1 = tag1.GetTagUnderParent(parentTag);
-    //    var childTag2 = tag2.GetTagUnderParent(parentTag);
-    //    var isSameTag = childTag1.HasTag(childTag2);
-    //    return matchParents && isSameTag;
-    //}
-
-    //public static bool IsSameTag(this BG_EntityTags parentTag, BG_EntityController entity1, BG_EntityController entity2)
-    //{
-    //    return IsSameTag(parentTag, entity1.attributes.tags, entity2.attributes.tags);
-    //}
+    public static void AllowUIButtonKeyModifiers(this Button button)
+    {
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Shift });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Alt });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Control });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Shift | EventModifiers.Alt });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Shift | EventModifiers.Control });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Alt | EventModifiers.Control });
+        button.clickable.activators.Add(new ManipulatorActivationFilter { button = UnityEngine.UIElements.MouseButton.LeftMouse, modifiers = EventModifiers.Shift | EventModifiers.Alt | EventModifiers.Control });
+    }
 }
 
 public static class LayerUtility

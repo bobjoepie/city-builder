@@ -4,7 +4,17 @@
         <ui:VisualElement name="bottom-toolbar" class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 0.59); position: absolute; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: row; bottom: 0;">
             <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
                 <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 80%; height: 100%; margin-right: 15px;" />
-                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 20%; height: 100%;" />
+                <ui:VisualElement name="toolbar-buttons" style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 20%; height: 100%;">
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%;">
+                        <ui:Button display-tooltip-when-elided="true" name="toolbar-button1" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-image: url(&apos;project://database/Assets/tripolygon/UModeler/Icons/Large/Icon_Remove_Eraser@x4.png?fileID=2800000&amp;guid=509a30cee237f4b6d8e1caf6803d299c&amp;type=3#Icon_Remove_Eraser@x4&apos;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%;">
+                        <ui:Button display-tooltip-when-elided="true" name="toolbar-button2" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%;">
+                        <ui:Button display-tooltip-when-elided="true" name="toolbar-button3" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement style="width: 60%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
                 <ui:VisualElement name="EntityThumbnail" style="background-color: rgb(84, 84, 84); width: 20%; height: 100%; margin-right: 15px; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconemptygravatar.png?fileID=2800000&amp;guid=9aebd705574f9e642aef1e5f59b3e4d8&amp;type=3#d_iconemptygravatar&apos;);" />
@@ -21,7 +31,7 @@
                 <ui:Button text="Build" display-tooltip-when-elided="true" name="build-button" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; font-size: 55px; -unity-font-style: bold;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="build-modal" class="blocker" style="background-color: rgba(36, 36, 36, 0.59); position: absolute; width: 20%; align-self: flex-end; top: 20%; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: column; height: 50%;">
+        <ui:VisualElement name="build-modal" class="blocker" style="background-color: rgba(36, 36, 36, 0.59); position: absolute; width: 20%; align-self: flex-end; top: 20%; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: column; height: 50%; visibility: hidden;">
             <ui:VisualElement name="build-menu" style="background-color: rgba(36, 36, 36, 0.59); position: relative; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: column; flex-wrap: nowrap; width: 100%; align-items: stretch; height: 100%;">
                 <ui:VisualElement style="flex-grow: 1; height: 20%; width: 100%; margin-bottom: 15px;">
                     <ui:Button display-tooltip-when-elided="true" name="build1" focusable="false" text="Build" style="font-size: 55px; -unity-font-style: bold; overflow: visible; height: 100%; width: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
