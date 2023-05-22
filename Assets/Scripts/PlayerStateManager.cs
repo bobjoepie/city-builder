@@ -12,7 +12,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     private InputManager inputManager;
     private Camera mainCamera;
 
-    private Action pendingAction;
+    private Func<bool> pendingAction;
     private Action cancelAction;
 
     private PlayerStateManager()
@@ -56,7 +56,8 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         {
             CompletePendingAction();
         }
-        else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel))
+        else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel) ||
+                 inputManager.PollKeyUp(this, KeyAction.Confirm))
         {
             CancelPendingAction();
         }
@@ -114,7 +115,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         inputManager.ReleaseActionMap(this);
     }
 
-    public void StartPendingAction(Action action, Action cancellationAction)
+    public void StartPendingAction(Func<bool> action, Action cancellationAction)
     {
         pendingAction = action;
         cancelAction = cancellationAction;
@@ -129,8 +130,11 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             CancelPendingAction();
             return;
         }
+
         inputManager.ReleaseActionMap(this);
-        pendingAction.Invoke();
+        var result = pendingAction.Invoke();
+        if (!result) return;
+
         pendingAction = null;
         cancelAction = null;
         inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);

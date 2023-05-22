@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildPreviewer : MonoBehaviour, IInputController
@@ -10,10 +11,19 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     private Camera mainCamera;
     public bool isAttachedToMouse;
+    public Material previewMaterial;
+
+    private Rigidbody rb;
+    private Transform displayObject;
 
     private BuildPreviewer()
     {
         Instance = this;
+    }
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Start()
@@ -38,8 +48,7 @@ public class BuildPreviewer : MonoBehaviour, IInputController
                 layerMask: LayerUtility.Only(new String[] { "Grid" })))
         {
             var gridPos = new Vector3(Mathf.FloorToInt(hit.point.x + 0.5f), Mathf.FloorToInt(hit.point.y), Mathf.FloorToInt(hit.point.z + 0.5f));
-            transform.position = gridPos;
-
+            rb.MovePosition(gridPos);
         }
     }
     private void CheckInputs()
@@ -60,7 +69,9 @@ public class BuildPreviewer : MonoBehaviour, IInputController
     public void StartPreview(Transform buildingPreview)
     {
         isAttachedToMouse = true;
-        Instantiate(buildingPreview, transform);
+        displayObject = Instantiate(buildingPreview, transform);
+        displayObject.GetComponent<MeshRenderer>().material = previewMaterial;
+        displayObject.GetComponent<Collider>().isTrigger = true;
     }
 
     public void StopPreview()
@@ -79,5 +90,40 @@ public class BuildPreviewer : MonoBehaviour, IInputController
         {
             DestroyImmediate(child.gameObject);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.TryGetComponent<BuildingController>(out var building))
+        {
+            displayObject.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.gameObject.TryGetComponent<BuildingController>(out var _))
+        {
+            return;
+        }
+
+        if (CanBuild())
+        {
+            displayObject.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+    }
+
+    public bool CanBuild()
+    {
+        var extents = displayObject.GetComponent<Collider>().bounds.extents;
+        var overlaps = Physics.OverlapBox(transform.position, extents);
+        foreach (var overlap in overlaps)
+        {
+            if (overlap.transform != transform.GetChild(0) && overlap.gameObject.TryGetComponent<BuildingController>(out var building))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -30,12 +30,19 @@ public class ResourceManager : MonoBehaviour
         PlayerStateManager.Instance.StartPendingAction(() => Build(building), CancelBuild);
     }
 
-    private void Build(BuildingController building)
+    private bool Build(BuildingController building)
     {
-        Debug.Log($"Built {building.displayName}");
+        if (!BuildPreviewer.Instance.CanBuild())
+        {
+            BuildPreviewer.Instance.StopPreview();
+            BuildPreview(building);
+            return false;
+        }
+
         BuildPreviewer.Instance.StopPreview();
         var buildTransform = BuildPreviewer.Instance.transform;
         Instantiate(building, buildTransform.position, buildTransform.rotation);
+        return true;
     }
 
     private void CancelBuild()
