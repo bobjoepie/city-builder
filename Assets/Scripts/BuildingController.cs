@@ -4,8 +4,5 @@ using UnityEngine;
 
 public class BuildingController : EntityController
 {
-    void Start()
-    {
-        
-    }
+
 }

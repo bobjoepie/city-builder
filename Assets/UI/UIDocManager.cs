@@ -76,22 +76,16 @@ public class UIDocManager : MonoBehaviour
 
     public void SetEntityHUD(EntityController entity)
     {
+        hudOverlay.SetEntityInfo(entity);
         hudOverlay.ShowPanel(PanelType.EntityThumbnail);
-        hudOverlay.SetEntityThumbnail(entity.thumbnail);
-
         hudOverlay.ShowPanel(PanelType.EntityInfo);
-        hudOverlay.SetEntityName(entity.displayName);
-        hudOverlay.SetEntityDescription(entity.description);
     }
 
     public void ClearEntityHUD()
     {
         hudOverlay.HidePanel(PanelType.EntityThumbnail);
-        hudOverlay.SetEntityThumbnail(null);
-
         hudOverlay.HidePanel(PanelType.EntityInfo);
-        hudOverlay.SetEntityName(string.Empty);
-        hudOverlay.SetEntityDescription(string.Empty);
+        hudOverlay.SetEntityInfo(null);
     }
 
     public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
@@ -105,9 +99,9 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.ClearBuildMenu();
     }
 
-    public void SetConfirmationModalButtons(Action acceptAction, Action declineAction)
+    public void SetConfirmationModalButtons(Action acceptAction, Action declineAction, string title, string description)
     {
-        hudOverlay.SetConfirmationModalButtons(acceptAction, declineAction);
+        hudOverlay.SetConfirmationModalInfo(acceptAction, declineAction, title, description);
         hudOverlay.ShowPanel(PanelType.ConfirmationModal);
     }
 
@@ -119,5 +113,10 @@ public class UIDocManager : MonoBehaviour
     public void ClearToolbarButtons()
     {
         hudOverlay.ClearToolbarButtons();
+    }
+
+    public void SetResourceHUD(List<ResourceInfo> resources)
+    {
+        hudOverlay.SetResourceHUD(resources);
     }
 }

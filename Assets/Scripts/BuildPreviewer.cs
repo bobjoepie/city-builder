@@ -10,7 +10,6 @@ public class BuildPreviewer : MonoBehaviour, IInputController
     private InputManager inputManager;
 
     private Camera mainCamera;
-    public bool isAttachedToMouse;
     public Material previewMaterial;
 
     private Rigidbody rb;
@@ -35,11 +34,8 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     private void Update()
     {
-        if (isAttachedToMouse)
-        {
-            CheckMousePosition();
-            CheckInputs();
-        }
+        CheckMousePosition();
+        CheckInputs();
     }
 
     private void CheckMousePosition()
@@ -68,15 +64,16 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     public void StartPreview(Transform buildingPreview)
     {
-        isAttachedToMouse = true;
+        CheckMousePosition();
         displayObject = Instantiate(buildingPreview, transform);
+        Destroy(displayObject.GetComponent<BuildingController>());
         displayObject.GetComponent<MeshRenderer>().material = previewMaterial;
+        displayObject.GetComponent<MeshRenderer>().material.color = CanBuild() ? Color.green : Color.red;
         displayObject.GetComponent<Collider>().isTrigger = true;
     }
 
     public void StopPreview()
     {
-        isAttachedToMouse = false;
         GameObject[] allChildren = new GameObject[transform.childCount];
 
         var i = 0;
@@ -88,7 +85,7 @@ public class BuildPreviewer : MonoBehaviour, IInputController
         
         foreach (GameObject child in allChildren)
         {
-            DestroyImmediate(child.gameObject);
+            Destroy(child.gameObject);
         }
     }
 
@@ -115,6 +112,7 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     public bool CanBuild()
     {
+        if (displayObject == null || !displayObject.TryGetComponent<Collider>(out var collider)) return false;
         var extents = displayObject.GetComponent<Collider>().bounds.extents;
         var overlaps = Physics.OverlapBox(transform.position, extents);
         foreach (var overlap in overlaps)

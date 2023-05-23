@@ -9,11 +9,13 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     public EntityController selectedEntity;
     public Material selectedMaterial;
     public Texture2D deleteIcon;
+    public Texture2D upgradeIcon;
 
     private InputManager inputManager;
     private Camera mainCamera;
 
-    private Func<bool> pendingAction;
+    private Func<bool, bool> pendingAction;
+    private Func<bool, bool> repeatingAction;
     private Action cancelAction;
 
     private PlayerStateManager()
@@ -53,14 +55,36 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             }
         }
 
-        if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Confirm))
+        else if (pendingAction != null)
         {
-            CompletePendingAction();
+            if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Confirm))
+            {
+                if (inputManager.PollKey(this, KeyAction.RepeatModifier))
+                {
+                    CompleteAndRepeatPendingAction();
+                }
+                else
+                {
+                    CompletePendingAction();
+                }
+            }
+            else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel) ||
+                     inputManager.PollKeyUp(this, KeyAction.Confirm))
+            {
+                CancelPendingAction();
+            }
         }
-        else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel) ||
-                 inputManager.PollKeyUp(this, KeyAction.Confirm))
+
+        else if (repeatingAction != null)
         {
-            CancelPendingAction();
+            if (inputManager.PollKeyUp(this, KeyAction.RepeatModifier))
+            {
+                CancelRepeatingAction();
+            }
+            else if (inputManager.PollKeyUp(this, KeyAction.Confirm))
+            {
+                CompleteRepeatingAction();
+            }
         }
     }
 
@@ -101,18 +125,37 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         deleteAction.icon = deleteIcon;
         deleteAction.action = () =>
         {
-            HandleDeselection();
-            DestroyImmediate(building.gameObject);
+            SetConfirmation(() =>
+            {
+                HandleDeselection();
+                building.DestroySelf();
+            },
+            "Confirm?",
+            "Are you sure you want to destroy this building? Resources will not be refunded.");
         };
         toolbarActions.Add(deleteAction);
+
+        var upgradeAction = new ToolbarAction();
+        upgradeAction.entity = building;
+        upgradeAction.icon = upgradeIcon;
+        upgradeAction.action = () =>
+        {
+            SetConfirmation(() =>
+            {
+                building.Upgrade();
+            },
+            "Confirm?",
+            "Are you sure you want to upgrade this building?");
+        };
+        toolbarActions.Add(upgradeAction);
 
         UIDocManager.Instance.SetToolbarButtons(toolbarActions);
     }
 
-    public void SetConfirmation(Action acceptAction)
+    public void SetConfirmation(Action acceptAction, string title, string description)
     {
         inputManager.HoldActionMap(this);
-        UIDocManager.Instance.SetConfirmationModalButtons(() => AcceptConfirmation(acceptAction), DeclineConfirmation);
+        UIDocManager.Instance.SetConfirmationModalButtons(() => AcceptConfirmation(acceptAction), DeclineConfirmation, title, description);
     }
 
     public void AcceptConfirmation(Action action)
@@ -131,7 +174,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
         inputManager.ReleaseActionMap(this);
     }
 
-    public void StartPendingAction(Func<bool> action, Action cancellationAction)
+    public void StartPendingAction(Func<bool, bool> action, Action cancellationAction)
     {
         pendingAction = action;
         cancelAction = cancellationAction;
@@ -147,21 +190,51 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             return;
         }
 
-        inputManager.ReleaseActionMap(this);
-        var result = pendingAction.Invoke();
+        var result = pendingAction.Invoke(false);
         if (!result) return;
-
         pendingAction = null;
         cancelAction = null;
+
+        inputManager.ReleaseActionMap(this);
         inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);
     }
 
     public void CancelPendingAction()
     {
-        inputManager.ReleaseActionMap(this);
         cancelAction.Invoke();
         pendingAction = null;
         cancelAction = null;
+
+        inputManager.ReleaseActionMap(this);
         inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);
+    }
+
+    public void CompleteAndRepeatPendingAction()
+    {
+        if (pendingAction == null)
+        {
+            CancelPendingAction();
+            return;
+        }
+
+        repeatingAction = pendingAction;
+        pendingAction = null;
+
+        repeatingAction.Invoke(true);
+    }
+
+    public void CancelRepeatingAction()
+    {
+        cancelAction.Invoke();
+        repeatingAction = null;
+        cancelAction = null;
+
+        inputManager.ReleaseActionMap(this);
+        inputManager.Unregister(this, DefaultActionMaps.ConfirmationActions);
+    }
+
+    public void CompleteRepeatingAction()
+    {
+        repeatingAction.Invoke(true);
     }
 }

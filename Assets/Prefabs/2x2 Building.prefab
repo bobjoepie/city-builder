@@ -51,6 +51,7 @@ MonoBehaviour:
   thumbnail: {fileID: 2800000, guid: bc718cbaa3d8047c590aaa8f22996a9e, type: 3}
   displayName: Basic Building
   description: As basic as it gets
+  level: 0
 --- !u!114 &2678633114954906780
 MonoBehaviour:
   m_ObjectHideFlags: 0

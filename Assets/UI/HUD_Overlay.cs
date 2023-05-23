@@ -20,6 +20,12 @@ public class HUD_Overlay : VisualElement
     public VisualElement confirmationModal;
     public Button confirmationAcceptButton;
     public Button confirmationDeclineButton;
+    public Label confirmationModalHeader;
+    public Label confirmationModalDescription;
+
+    public VisualElement resourceBar;
+    public List<VisualElement> resourceIcons;
+    public List<Label> resourceLabels;
 
     public new class UxmlFactory : UxmlFactory<HUD_Overlay, UxmlTraits> { }
 
@@ -40,6 +46,7 @@ public class HUD_Overlay : VisualElement
         InitEntityInfo();
         InitBuildMenu();
         InitConfirmationModal();
+        InitResourceBar();
     }
 
     private void InitBottomToolbar()
@@ -54,6 +61,8 @@ public class HUD_Overlay : VisualElement
         confirmationModal = this.Q("confirmation-modal");
         confirmationAcceptButton = confirmationModal.Q<Button>("confirmation-accept-button");
         confirmationDeclineButton = confirmationModal.Q<Button>("confirmation-decline-button");
+        confirmationModalHeader = confirmationModal.Q<Label>("confirmation-header");
+        confirmationModalDescription = confirmationModal.Q<Label>("confirmation-description");
 
         HidePanel(PanelType.ConfirmationModal);
     }
@@ -90,12 +99,17 @@ public class HUD_Overlay : VisualElement
         entityName = this.Q<Label>("EntityName");
         entityDescription = this.Q<Label>("EntityDescription");
 
-        SetEntityThumbnail(null);
-        SetEntityName(string.Empty);
-        SetEntityDescription(string.Empty);
+        SetEntityInfo(null);
 
         HidePanel(PanelType.EntityThumbnail);
         HidePanel(PanelType.EntityInfo);
+    }
+
+    private void InitResourceBar()
+    {
+        resourceBar = this.Q("resource-bar");
+        resourceIcons = this.Query("resource-icon").ToList();
+        resourceLabels = this.Query<Label>().ToList();
     }
 
     public void Show()
@@ -212,19 +226,11 @@ public class HUD_Overlay : VisualElement
         return element.style.visibility == Visibility.Hidden;
     }
 
-    public void SetEntityThumbnail(Texture2D image)
+    public void SetEntityInfo(EntityController entity)
     {
-        entityThumbnail.style.backgroundImage = image;
-    }
-
-    public void SetEntityName(string name)
-    {
-        entityName.text = name;
-    }
-
-    public void SetEntityDescription(string description)
-    {
-        entityDescription.text = description;
+        entityThumbnail.style.backgroundImage = entity ? entity.thumbnail : null;
+        entityName.text = entity ? entity.displayName + $" (Lvl {entity.level})" : string.Empty;
+        entityDescription.text = entity ? entity.description : string.Empty;
     }
 
     public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
@@ -252,11 +258,12 @@ public class HUD_Overlay : VisualElement
         }
     }
 
-    public void SetConfirmationModalButtons(Action acceptAction, Action declineAction)
+    public void SetConfirmationModalInfo(Action acceptAction, Action declineAction, string title, string description)
     {
         confirmationAcceptButton.clickable = new Clickable(() => { });
         confirmationAcceptButton.clickable.clicked += () =>
         {
+            confirmationAcceptButton.clickable = new Clickable(() => { });
             HidePanel(PanelType.ConfirmationModal);
             acceptAction.Invoke();
         };
@@ -265,10 +272,14 @@ public class HUD_Overlay : VisualElement
         confirmationDeclineButton.clickable = new Clickable(() => { });
         confirmationDeclineButton.clickable.clicked += () =>
         {
+            confirmationDeclineButton.clickable = new Clickable(() => { });
             HidePanel(PanelType.ConfirmationModal);
             declineAction.Invoke();
         };
         confirmationDeclineButton.AllowUIButtonKeyModifiers();
+
+        confirmationModalHeader.text = title;
+        confirmationModalDescription.text = description;
     }
 
     public void SetToolbarButtons(List<ToolbarAction> toolbarActions)
@@ -293,6 +304,17 @@ public class HUD_Overlay : VisualElement
         {
             button.clickable = new Clickable(() => { });
             button.style.backgroundImage = null;
+        }
+    }
+
+    public void SetResourceHUD(List<ResourceInfo> resources)
+    {
+        for (int i = 0; i < resourceLabels.Count; i++)
+        {
+            if (i >= resources.Count) continue;
+
+            resourceIcons[i].style.backgroundImage = resources[i].icon;
+            resourceLabels[i].text = $"{resources[i].curAmount} / {resources[i].maxAmount}";
         }
     }
 }

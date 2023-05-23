@@ -40,6 +40,7 @@ public enum KeyAction
 
     Confirm,
     Cancel,
+    RepeatModifier,
 
     Rotate,
 
@@ -99,6 +100,7 @@ public struct DefaultActionMaps
     {
         KeyAction.Confirm,
         KeyAction.Cancel,
+        KeyAction.RepeatModifier
     };
 
     public static readonly List<KeyAction> CameraActions = new List<KeyAction>()
@@ -164,6 +166,7 @@ public class InputManager : MonoBehaviour
 
         {KeyAction.Confirm              ,       KeyCode.Mouse0},
         {KeyAction.Cancel               ,       KeyCode.Mouse1},
+        {KeyAction.RepeatModifier       ,       KeyCode.LeftShift},
 
         {KeyAction.Rotate               ,       KeyCode.R},
 
@@ -263,6 +266,7 @@ public class InputManager : MonoBehaviour
 
     public void HoldActionMap(IInputController entity)
     {
+        //if (!actionMaps.ContainsKey(entity)) return;
         if (heldActionMaps.ContainsKey(entity))
         {
             heldActionMaps[entity].UnionWith(actionMaps[entity]);
@@ -276,6 +280,7 @@ public class InputManager : MonoBehaviour
 
     public void ReleaseActionMap(IInputController entity)
     {
+        //if (!heldActionMaps.ContainsKey(entity)) return;
         if (actionMaps.ContainsKey(entity))
         {
             actionMaps[entity].UnionWith(heldActionMaps[entity]);

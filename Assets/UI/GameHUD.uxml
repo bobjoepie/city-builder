@@ -1,6 +1,46 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/GameHUDStyle.uss?fileID=7433441132597879392&amp;guid=d0961905e9ecfbd4abe2bc8b67d5d91d&amp;type=3#GameHUDStyle" />
     <HUD_Overlay style="width: 100%; height: 100%;">
+        <ui:VisualElement name="top-toolbar" class="blocker" style="width: 100%; height: 5%; background-color: rgba(36, 36, 36, 0.59); position: absolute; flex-direction: row; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;">
+            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; flex-direction: row;">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="resource-bar" style="width: 60%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; flex-direction: row;">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%; margin-right: 5px; flex-direction: row;">
+                    <ui:VisualElement name="resource-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 20%; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconaddedlocal@2x.png?fileID=2800000&amp;guid=02800fb9cff14da47a04572790384d8b&amp;type=3#d_iconaddedlocal@2x&apos;);" />
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 80%;">
+                        <ui:Label tabindex="-1" text="0/0" display-tooltip-when-elided="true" name="resource-label1" style="width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 25px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%; margin-right: 5px; flex-direction: row;">
+                    <ui:VisualElement name="resource-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 20%; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconaddedlocal@2x.png?fileID=2800000&amp;guid=02800fb9cff14da47a04572790384d8b&amp;type=3#d_iconaddedlocal@2x&apos;);" />
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 80%;">
+                        <ui:Label tabindex="-1" text="0/0" display-tooltip-when-elided="true" name="resource-label2" style="width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 25px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%; margin-right: 5px; flex-direction: row;">
+                    <ui:VisualElement name="resource-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 20%; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconaddedlocal@2x.png?fileID=2800000&amp;guid=02800fb9cff14da47a04572790384d8b&amp;type=3#d_iconaddedlocal@2x&apos;);" />
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 80%;">
+                        <ui:Label tabindex="-1" text="0/0" display-tooltip-when-elided="true" name="resource-label3" style="width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 25px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%; margin-right: 5px; flex-direction: row;">
+                    <ui:VisualElement name="resource-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 20%; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconaddedlocal@2x.png?fileID=2800000&amp;guid=02800fb9cff14da47a04572790384d8b&amp;type=3#d_iconaddedlocal@2x&apos;);" />
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 80%;">
+                        <ui:Label tabindex="-1" text="0/0" display-tooltip-when-elided="true" name="resource-label4" style="width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 25px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%; flex-direction: row;">
+                    <ui:VisualElement name="resource-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 20%; background-image: url(&apos;project://database/Packages/com.unity.collab-proxy/Editor/PlasticSCM/Assets/Images/d_iconaddedlocal@2x.png?fileID=2800000&amp;guid=02800fb9cff14da47a04572790384d8b&amp;type=3#d_iconaddedlocal@2x&apos;);" />
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 80%;">
+                        <ui:Label tabindex="-1" text="0/0" display-tooltip-when-elided="true" name="resource-label5" style="width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-center; font-size: 25px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 100%; height: 100%;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:VisualElement name="bottom-toolbar" class="blocker" style="width: 100%; height: 25%; background-color: rgba(36, 36, 36, 0.59); position: absolute; padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px; flex-direction: row; bottom: 0;">
             <ui:VisualElement style="width: 20%; background-color: rgba(36, 36, 36, 0.59); position: relative; height: 100%; align-self: auto; margin-right: 20px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; flex-direction: row;">
                 <ui:VisualElement style="flex-grow: 1; background-color: rgb(84, 84, 84); width: 80%; height: 100%; margin-right: 15px;" />
@@ -9,7 +49,7 @@
                         <ui:Button display-tooltip-when-elided="true" name="toolbar-button1" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-image: url(&apos;project://database/Assets/tripolygon/UModeler/Icons/Large/Icon_Remove_Eraser@x4.png?fileID=2800000&amp;guid=509a30cee237f4b6d8e1caf6803d299c&amp;type=3#Icon_Remove_Eraser@x4&apos;);" />
                     </ui:VisualElement>
                     <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%;">
-                        <ui:Button display-tooltip-when-elided="true" name="toolbar-button2" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                        <ui:Button display-tooltip-when-elided="true" name="toolbar-button2" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-image: url(&apos;project://database/Assets/tripolygon/UModeler/Icons/Large/Icon_Add_PushPull@x4.png?fileID=2800000&amp;guid=64937b14c9c4f4ca897b492799bd4869&amp;type=3#Icon_Add_PushPull@x4&apos;);" />
                     </ui:VisualElement>
                     <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%;">
                         <ui:Button display-tooltip-when-elided="true" name="toolbar-button3" focusable="false" style="width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
