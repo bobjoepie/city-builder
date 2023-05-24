@@ -43,6 +43,12 @@ public class EntityController : MonoBehaviour
         color.b %= 1.0f;
         material.SetColor("_Color", color);
         level += 1;
+
+        var resourceGenerator = GetComponent<ResourceGenerator>();
+        resourceGenerator.goldGenerationRate += 5;
+        resourceGenerator.stoneGenerationRate += level % 2 == 0 ? 1 : 0;
+        resourceGenerator.woodGenerationRate += level % 2 == 0 ? 1 : 0;
+        resourceGenerator.ironGenerationRate += level % 4 == 0 ? 1 : 0;
         UIDocManager.Instance.SetEntityHUD(this);
     }
 

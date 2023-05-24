@@ -155,6 +155,30 @@ Transform:
   m_Father: {fileID: 740483817}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+--- !u!1 &128528579 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8704213716359361530, guid: f7fd6b71b64f51a408eac087c98a686c,
+    type: 3}
+  m_PrefabInstance: {fileID: 1722291340}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &128528586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 128528579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82cfe35d51da9fb4ca17c9a092cb1e3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goldGenerationRate: 4
+  stoneGenerationRate: 1
+  woodGenerationRate: 1
+  ironGenerationRate: 0
+  populationGenerationAmount: 2
+  populationConsumptionAmount: 1
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +444,7 @@ GameObject:
   - component: {fileID: 537640254}
   - component: {fileID: 537640255}
   m_Layer: 0
-  m_Name: ResourceManager
+  m_Name: BuildingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -456,27 +480,30 @@ MonoBehaviour:
   buildingPrefabs:
   - {fileID: 2653521290234118660, guid: f7fd6b71b64f51a408eac087c98a686c, type: 3}
   - {fileID: -991999853098194622, guid: 744638abf6e47884fb5b69c77adddaac, type: 3}
-  resources:
-  - displayName: Gold
-    icon: {fileID: 2800000, guid: 183f7b7549219ab47becb461a16df882, type: 3}
-    curAmount: 200
-    maxAmount: 1000
-  - displayName: Stone
-    icon: {fileID: 2800000, guid: 8637c200f240c164891f518fbc664627, type: 3}
-    curAmount: 5
-    maxAmount: 25
-  - displayName: Wood
-    icon: {fileID: 2800000, guid: b642c6bf23e624e23ad11b3e1d471932, type: 3}
-    curAmount: 5
-    maxAmount: 25
-  - displayName: Iron
-    icon: {fileID: 2800000, guid: e311dd8de9ddd4cc490dbc91715398f7, type: 3}
-    curAmount: 5
-    maxAmount: 25
-  - displayName: Population
-    icon: {fileID: 2800000, guid: fd12dbe3b63ae464f824b4a74c0e1766, type: 3}
-    curAmount: 2
-    maxAmount: 4
+--- !u!1 &656952596 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5488114985913358821, guid: 744638abf6e47884fb5b69c77adddaac,
+    type: 3}
+  m_PrefabInstance: {fileID: 1569215497}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &656952603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656952596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82cfe35d51da9fb4ca17c9a092cb1e3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goldGenerationRate: 5
+  stoneGenerationRate: 0
+  woodGenerationRate: 0
+  ironGenerationRate: 1
+  populationGenerationAmount: 3
+  populationConsumptionAmount: 1
 --- !u!43 &730038631
 Mesh:
   m_ObjectHideFlags: 0
@@ -883,7 +910,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5488114985913358821, guid: 744638abf6e47884fb5b69c77adddaac,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 656952603}
   m_SourcePrefab: {fileID: 100100000, guid: 744638abf6e47884fb5b69c77adddaac, type: 3}
 --- !u!1 &1597358152
 GameObject:
@@ -1000,7 +1031,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8704213716359361530, guid: f7fd6b71b64f51a408eac087c98a686c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 128528586}
   m_SourcePrefab: {fileID: 100100000, guid: f7fd6b71b64f51a408eac087c98a686c, type: 3}
 --- !u!1 &1758486840
 GameObject:
@@ -1144,9 +1179,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8bb5be9cca575a47af23898bbdcc8d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resources:
+  - internalName: gold
+    displayName: Gold
+    icon: {fileID: 2800000, guid: 183f7b7549219ab47becb461a16df882, type: 3}
+    curAmount: 200
+    maxAmount: 1000
+  - internalName: stone
+    displayName: Stone
+    icon: {fileID: 2800000, guid: 8637c200f240c164891f518fbc664627, type: 3}
+    curAmount: 5
+    maxAmount: 25
+  - internalName: wood
+    displayName: Wood
+    icon: {fileID: 2800000, guid: b642c6bf23e624e23ad11b3e1d471932, type: 3}
+    curAmount: 5
+    maxAmount: 25
+  - internalName: iron
+    displayName: Iron
+    icon: {fileID: 2800000, guid: e311dd8de9ddd4cc490dbc91715398f7, type: 3}
+    curAmount: 5
+    maxAmount: 25
+  - internalName: population
+    displayName: Population
+    icon: {fileID: 2800000, guid: fd12dbe3b63ae464f824b4a74c0e1766, type: 3}
+    curAmount: 2
+    maxAmount: 4
   buildings: []
+  resourceGenerators: []
   autoTickEnabled: 1
-  autoTickFrequency: 5
+  autoTickFrequency: 1
 --- !u!1 &2043397936
 GameObject:
   m_ObjectHideFlags: 0

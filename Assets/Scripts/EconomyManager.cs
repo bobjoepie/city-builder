@@ -9,7 +9,11 @@ using UnityEngine;
 public class EconomyManager : MonoBehaviour
 {
     public static EconomyManager Instance { get; private set; }
+
+    public List<ResourceInfo> resources = new List<ResourceInfo>();
+
     public List<BuildingController> buildings = new List<BuildingController>();
+    public List<ResourceGenerator> resourceGenerators = new List<ResourceGenerator>();
 
     public bool autoTickEnabled = true;
     public float autoTickFrequency = 5f;
@@ -29,14 +33,33 @@ public class EconomyManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    private void Start()
     {
-        CancelAutoTick();
+        UIDocManager.Instance.SetResourceHUD(resources);
     }
-
+    
     public void Tick()
     {
-        Debug.Log("Tick");
+        ProcessResourceGenerators();
+    }
+
+    private void ProcessResourceGenerators()
+    {
+        foreach (var resourceGenerator in resourceGenerators)
+        {
+            resources.Where(c => c.internalName == "gold").ToList()
+                .ForEach(c => c.curAmount += resourceGenerator.goldGenerationRate);
+
+            resources.Where(c => c.internalName == "stone").ToList()
+                .ForEach(c => c.curAmount += resourceGenerator.stoneGenerationRate);
+
+            resources.Where(c => c.internalName == "wood").ToList()
+                .ForEach(c => c.curAmount += resourceGenerator.woodGenerationRate);
+
+            resources.Where(c => c.internalName == "iron").ToList()
+                .ForEach(c => c.curAmount += resourceGenerator.ironGenerationRate);
+        }
+        UIDocManager.Instance.SetResourceHUD(resources);
     }
 
     private async UniTask AutoTick()
@@ -64,24 +87,59 @@ public class EconomyManager : MonoBehaviour
         cancellationToken.Dispose();
         autoTickEnabled = false;
     }
+    private void OnDisable()
+    {
+        CancelAutoTick();
+    }
 
-    public void Register(EntityController entity)
+    public void Register<T>(T entity)
     {
         switch (entity)
         {
             case BuildingController bc:
                 buildings.Add(bc);
                 break;
+            case ResourceGenerator rg:
+                resourceGenerators.Add(rg);
+                resources.Where(c => c.internalName == "population").ToList()
+                    .ForEach(c =>
+                    {
+                        c.curAmount += rg.populationConsumptionAmount;
+                        c.maxAmount += rg.populationGenerationAmount;
+                    });
+                UIDocManager.Instance.SetResourceHUD(resources);
+                break;
         }
     }
 
-    public void Unregister(EntityController entity)
+    public void Unregister<T>(T entity)
     {
         switch (entity)
         {
             case BuildingController bc:
                 buildings.Remove(bc);
                 break;
+            case ResourceGenerator rg:
+                resourceGenerators.Remove(rg);
+                resources.Where(c => c.internalName == "population").ToList()
+                    .ForEach(c =>
+                    {
+                        c.curAmount -= rg.populationConsumptionAmount;
+                        c.maxAmount -= rg.populationGenerationAmount;
+                    });
+                UIDocManager.Instance.SetResourceHUD(resources);
+                break;
         }
     }
+}
+
+
+[Serializable]
+public class ResourceInfo
+{
+    public string internalName;
+    public string displayName;
+    public Texture2D icon;
+    public int curAmount;
+    public int maxAmount;
 }

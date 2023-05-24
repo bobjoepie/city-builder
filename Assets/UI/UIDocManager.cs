@@ -88,10 +88,9 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityInfo(null);
     }
 
-    public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
+    public void SetBuildMenu(List<BuildingController> buildingPrefabs, Action<BuildingController> buildAction)
     {
-        hudOverlay.SetBuildMenu(buildings, buildAction);
-        //hudOverlay.ShowPanel(PanelType.BuildMenu);
+        hudOverlay.SetBuildMenu(buildingPrefabs, buildAction);
     }
 
     public void ClearBuildMenu()
@@ -105,9 +104,9 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.ShowPanel(PanelType.ConfirmationModal);
     }
 
-    public void SetToolbarButtons(List<ToolbarAction> actions)
+    public void SetToolbarButtons(List<ToolbarAction> toolbarActions)
     {
-        hudOverlay.SetToolbarButtons(actions);
+        hudOverlay.SetToolbarButtons(toolbarActions);
     }
 
     public void ClearToolbarButtons()

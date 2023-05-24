@@ -38,8 +38,8 @@ public enum KeyAction
     DialogueContinue,
     DialogueSkip,
 
-    Confirm,
-    Cancel,
+    ConfirmClick,
+    CancelClick,
     RepeatModifier,
 
     Rotate,
@@ -52,6 +52,13 @@ public enum KeyAction
     ResetZoom,
 
     SpeedUpCamera,
+
+    ConfirmHotkey,
+    CancelHotkey,
+
+    CancelSelection,
+    DeleteSelected,
+    UpgradeSelected,
 }
 
 public struct DefaultActionMaps
@@ -98,9 +105,11 @@ public struct DefaultActionMaps
 
     public static readonly List<KeyAction> ConfirmationActions = new List<KeyAction>()
     {
-        KeyAction.Confirm,
-        KeyAction.Cancel,
-        KeyAction.RepeatModifier
+        KeyAction.ConfirmClick,
+        KeyAction.CancelClick,
+        KeyAction.RepeatModifier,
+        KeyAction.ConfirmHotkey,
+        KeyAction.CancelHotkey,
     };
 
     public static readonly List<KeyAction> CameraActions = new List<KeyAction>()
@@ -119,6 +128,19 @@ public struct DefaultActionMaps
 
         KeyAction.SpeedUpCamera,
     };
+
+    public static readonly List<KeyAction> ModalHotkeys = new List<KeyAction>()
+    {
+        KeyAction.ConfirmHotkey,
+        KeyAction.CancelHotkey
+    };
+
+    public static readonly List<KeyAction> SelectionActions = new List<KeyAction>()
+    {
+        KeyAction.CancelSelection,
+        KeyAction.DeleteSelected,
+        KeyAction.UpgradeSelected,
+    };
 }
 
 public interface IInputController { }
@@ -130,54 +152,61 @@ public class InputManager : MonoBehaviour
     private readonly Dictionary<IInputController, HashSet<KeyAction>> actionMaps = new Dictionary<IInputController, HashSet<KeyAction>>();
     private readonly Dictionary<IInputController, HashSet<KeyAction>> heldActionMaps = new Dictionary<IInputController, HashSet<KeyAction>>();
 
-    private readonly Dictionary<KeyAction, KeyCode> KeyActionMap = new Dictionary<KeyAction, KeyCode>()
+    private readonly Dictionary<KeyAction, List<KeyCode>> KeyActionMap = new Dictionary<KeyAction, List<KeyCode>>()
     {
-        {KeyAction.LeftClick            ,       KeyCode.Mouse0},
-        {KeyAction.RightClick           ,       KeyCode.Mouse1},
+        {KeyAction.LeftClick            ,       new List<KeyCode> { KeyCode.Mouse0 }},
+        {KeyAction.RightClick           ,       new List<KeyCode> { KeyCode.Mouse1 }},
 
-        {KeyAction.Up                   ,       KeyCode.W},
-        {KeyAction.Left                 ,       KeyCode.A},
-        {KeyAction.Down                 ,       KeyCode.S},
-        {KeyAction.Right                ,       KeyCode.D},
+        {KeyAction.Up                   ,       new List<KeyCode> { KeyCode.W }},
+        {KeyAction.Left                 ,       new List<KeyCode> { KeyCode.A }},
+        {KeyAction.Down                 ,       new List<KeyCode> { KeyCode.S }},
+        {KeyAction.Right                ,       new List<KeyCode> { KeyCode.D }},
 
-        {KeyAction.Use                  ,       KeyCode.E},
-        {KeyAction.SpaceKey             ,       KeyCode.Space},
-        {KeyAction.EnterKey             ,       KeyCode.Return},
+        {KeyAction.Use                  ,       new List<KeyCode> { KeyCode.E }},
+        {KeyAction.SpaceKey             ,       new List<KeyCode> { KeyCode.Space }},
+        {KeyAction.EnterKey             ,       new List<KeyCode> { KeyCode.Return }},
 
-        {KeyAction.Slot1                ,       KeyCode.Alpha1},
-        {KeyAction.Slot2                ,       KeyCode.Alpha2},
-        {KeyAction.Slot3                ,       KeyCode.Alpha3},
-        {KeyAction.Slot4                ,       KeyCode.Alpha4},
-        {KeyAction.Slot5                ,       KeyCode.Alpha5},
-        {KeyAction.Slot6                ,       KeyCode.Alpha6},
-        {KeyAction.Slot7                ,       KeyCode.Alpha7},
-        {KeyAction.Slot8                ,       KeyCode.Alpha8},
-        {KeyAction.Slot9                ,       KeyCode.Alpha9},
-        {KeyAction.Slot0                ,       KeyCode.Alpha0},
+        {KeyAction.Slot1                ,       new List<KeyCode> { KeyCode.Alpha1 }},
+        {KeyAction.Slot2                ,       new List<KeyCode> { KeyCode.Alpha2 }},
+        {KeyAction.Slot3                ,       new List<KeyCode> { KeyCode.Alpha3 }},
+        {KeyAction.Slot4                ,       new List<KeyCode> { KeyCode.Alpha4 }},
+        {KeyAction.Slot5                ,       new List<KeyCode> { KeyCode.Alpha5 }},
+        {KeyAction.Slot6                ,       new List<KeyCode> { KeyCode.Alpha6 }},
+        {KeyAction.Slot7                ,       new List<KeyCode> { KeyCode.Alpha7 }},
+        {KeyAction.Slot8                ,       new List<KeyCode> { KeyCode.Alpha8 }},
+        {KeyAction.Slot9                ,       new List<KeyCode> { KeyCode.Alpha9 }},
+        {KeyAction.Slot0                ,       new List<KeyCode> { KeyCode.Alpha0 }},
 
-        {KeyAction.Tab                  ,       KeyCode.Tab},
-        {KeyAction.Escape               ,       KeyCode.Escape},
-        {KeyAction.Shift                ,       KeyCode.LeftShift},
-        {KeyAction.Ctrl                 ,       KeyCode.LeftControl},
-        {KeyAction.Alt                  ,       KeyCode.LeftAlt},
+        {KeyAction.Tab                  ,       new List<KeyCode> { KeyCode.Tab }},
+        {KeyAction.Escape               ,       new List<KeyCode> { KeyCode.Escape }},
+        {KeyAction.Shift                ,       new List<KeyCode> { KeyCode.LeftShift }},
+        {KeyAction.Ctrl                 ,       new List<KeyCode> { KeyCode.LeftControl }},
+        {KeyAction.Alt                  ,       new List<KeyCode> { KeyCode.LeftAlt }},
 
-        {KeyAction.DialogueContinue     ,       KeyCode.Return},
-        {KeyAction.DialogueSkip         ,       KeyCode.Escape},
+        {KeyAction.DialogueContinue     ,       new List<KeyCode> { KeyCode.Return }},
+        {KeyAction.DialogueSkip         ,       new List<KeyCode> { KeyCode.Escape }},
 
-        {KeyAction.Confirm              ,       KeyCode.Mouse0},
-        {KeyAction.Cancel               ,       KeyCode.Mouse1},
-        {KeyAction.RepeatModifier       ,       KeyCode.LeftShift},
+        {KeyAction.ConfirmClick         ,       new List<KeyCode> { KeyCode.Mouse0 }},
+        {KeyAction.CancelClick          ,       new List<KeyCode> { KeyCode.Mouse1 }},
+        {KeyAction.RepeatModifier       ,       new List<KeyCode> { KeyCode.LeftShift }},
 
-        {KeyAction.Rotate               ,       KeyCode.R},
+        {KeyAction.Rotate               ,       new List<KeyCode> { KeyCode.R }},
 
-        {KeyAction.RotateLeft           ,       KeyCode.LeftBracket},
-        {KeyAction.RotateRight          ,       KeyCode.RightBracket},
+        {KeyAction.RotateLeft           ,       new List<KeyCode> { KeyCode.LeftBracket }},
+        {KeyAction.RotateRight          ,       new List<KeyCode> { KeyCode.RightBracket }},
 
-        {KeyAction.ZoomIn               ,       KeyCode.PageUp},
-        {KeyAction.ZoomOut              ,       KeyCode.PageDown},
-        {KeyAction.ResetZoom            ,       KeyCode.Home},
+        {KeyAction.ZoomIn               ,       new List<KeyCode> { KeyCode.PageUp }},
+        {KeyAction.ZoomOut              ,       new List<KeyCode> { KeyCode.PageDown }},
+        {KeyAction.ResetZoom            ,       new List<KeyCode> { KeyCode.Home }},
 
-        {KeyAction.SpeedUpCamera        ,       KeyCode.LeftShift},
+        {KeyAction.SpeedUpCamera        ,       new List<KeyCode> { KeyCode.LeftShift }},
+
+        {KeyAction.ConfirmHotkey        ,       new List<KeyCode> { KeyCode.Return }},
+        {KeyAction.CancelHotkey         ,       new List<KeyCode> { KeyCode.Escape }},
+
+        {KeyAction.CancelSelection      ,       new List<KeyCode> { KeyCode.Escape }},
+        {KeyAction.DeleteSelected       ,       new List<KeyCode> { KeyCode.Delete }},
+        {KeyAction.UpgradeSelected      ,       new List<KeyCode> { KeyCode.U }},
     };
 
     private InputManager()
@@ -187,54 +216,90 @@ public class InputManager : MonoBehaviour
 
     public bool PollKeyDown(IInputController entity, KeyAction action)
     {
-        if (Input.GetKeyDown(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKeyDown(key))
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public bool PollKeyUp(IInputController entity, KeyAction action)
     {
-        if (Input.GetKeyUp(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKeyUp(key))
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public bool PollKey(IInputController entity, KeyAction action)
     {
-        if (Input.GetKey(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKey(key))
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public bool PollKeyDownIgnoreUI(IInputController entity, KeyAction action)
     {
-        if (Input.GetKeyDown(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action) && !IsHoveringOverUI())
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKeyDown(key) && !IsHoveringOverUI())
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public bool PollKeyUpIgnoreUI(IInputController entity, KeyAction action)
     {
-        if (Input.GetKeyUp(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action) && !IsHoveringOverUI())
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKeyUp(key) && !IsHoveringOverUI())
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public bool PollKeyIgnoreUI(IInputController entity, KeyAction action)
     {
-        if (Input.GetKey(KeyActionMap[action]) && actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action) && !IsHoveringOverUI())
+        if (actionMaps.ContainsKey(entity) && actionMaps[entity].Contains(action))
         {
-            return true;
+            foreach (var key in KeyActionMap[action])
+            {
+                if (Input.GetKey(key) && !IsHoveringOverUI())
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -244,11 +309,11 @@ public class InputManager : MonoBehaviour
         return UIDocManager.Instance.IsHoveringOverUI();
     }
 
-    public void Remap(KeyAction keyAction, KeyCode keyCode)
+    public void Remap(KeyAction keyAction, List<KeyCode> keyCodes)
     {
         if (KeyActionMap.ContainsKey(keyAction))
         {
-            KeyActionMap[keyAction] = keyCode;
+            KeyActionMap[keyAction] = keyCodes;
         }
     }
 
@@ -266,7 +331,6 @@ public class InputManager : MonoBehaviour
 
     public void HoldActionMap(IInputController entity)
     {
-        //if (!actionMaps.ContainsKey(entity)) return;
         if (heldActionMaps.ContainsKey(entity))
         {
             heldActionMaps[entity].UnionWith(actionMaps[entity]);
@@ -280,7 +344,6 @@ public class InputManager : MonoBehaviour
 
     public void ReleaseActionMap(IInputController entity)
     {
-        //if (!heldActionMaps.ContainsKey(entity)) return;
         if (actionMaps.ContainsKey(entity))
         {
             actionMaps[entity].UnionWith(heldActionMaps[entity]);

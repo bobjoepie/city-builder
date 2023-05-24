@@ -41,7 +41,6 @@ public class HUD_Overlay : VisualElement
 
     public void InitHUD()
     {
-        //InitBlockers();
         InitBottomToolbar();
         InitEntityInfo();
         InitBuildMenu();
@@ -74,22 +73,7 @@ public class HUD_Overlay : VisualElement
         var buildMenuButton = this.Q<Button>("build-button");
         buildMenuButton.clickable.clicked += () => { TogglePanel(PanelType.BuildMenu); };
         buildMenuButton.AllowUIButtonKeyModifiers();
-        //var buildButtons = buildMenu.Children().Where(c => c is Button).Cast<Button>().ToList();
-        //for (int i = 0; i < buildButtons.Count; i++)
-        //{
-        //    int ii = i;
-        //    buildButtons[ii].clickable.clicked += () => { Debug.Log(ii); };
-        //}
         HidePanel(PanelType.BuildMenu);
-    }
-
-    private void InitBlockers()
-    {
-        var blockers = this.Query(className: "blocker").ToList();
-        foreach (var blocker in blockers)
-        {
-            UIDocManager.Instance.AddRaycastBlocker(blocker);
-        }
     }
 
     private void InitEntityInfo()
@@ -233,18 +217,26 @@ public class HUD_Overlay : VisualElement
         entityDescription.text = entity ? entity.description : string.Empty;
     }
 
-    public void SetBuildMenu(List<BuildingController> buildings, Action<BuildingController> buildAction)
+    public void SetBuildMenu(List<BuildingController> buildingPrefabs, Action<BuildingController> buildAction)
     {
-        ClearBuildMenu();
         var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
-        for (int i = 0; i < buildings.Count; i++)
+        for (int i = 0; i < buildingPrefabs.Count; i++)
         {
-            if (i >= buildButtons.Count) break;
             int ii = i;
             buildButtons[ii].clickable = new Clickable(() => { });
-            buildButtons[ii].clickable.clicked += () => buildAction.Invoke(buildings[ii]);
+            buildButtons[ii].text = string.Empty;
+
+            if (i >= buildButtons.Count) continue;
+
+            var buildButtonActionHotkey = new Action(() =>
+            {
+                buildButtons[ii].clickable = new Clickable(() => { });
+                buildAction.Invoke(buildingPrefabs[ii]);
+            });
+
+            buildButtons[ii].clickable.clicked += buildButtonActionHotkey;
             buildButtons[ii].AllowUIButtonKeyModifiers();
-            buildButtons[ii].text = buildings[ii].displayName;
+            buildButtons[ii].text = buildingPrefabs[ii].displayName;
         }
     }
 
@@ -261,23 +253,26 @@ public class HUD_Overlay : VisualElement
     public void SetConfirmationModalInfo(Action acceptAction, Action declineAction, string title, string description)
     {
         confirmationAcceptButton.clickable = new Clickable(() => { });
-        confirmationAcceptButton.clickable.clicked += () =>
+        var acceptActionHotkey = new Action(() =>
         {
             confirmationAcceptButton.clickable = new Clickable(() => { });
             HidePanel(PanelType.ConfirmationModal);
             acceptAction.Invoke();
-        };
+        });
+        confirmationAcceptButton.clickable.clicked += acceptActionHotkey;
         confirmationAcceptButton.AllowUIButtonKeyModifiers();
 
         confirmationDeclineButton.clickable = new Clickable(() => { });
-        confirmationDeclineButton.clickable.clicked += () =>
+        var declineActionHotkey = new Action(() =>
         {
-            confirmationDeclineButton.clickable = new Clickable(() => { });
+            confirmationAcceptButton.clickable = new Clickable(() => { });
             HidePanel(PanelType.ConfirmationModal);
             declineAction.Invoke();
-        };
+        });
+        confirmationDeclineButton.clickable.clicked += declineActionHotkey;
         confirmationDeclineButton.AllowUIButtonKeyModifiers();
 
+        PlayerStateManager.Instance.SetModalConfirmationActionsForHotkey(acceptActionHotkey, declineActionHotkey);
         confirmationModalHeader.text = title;
         confirmationModalDescription.text = description;
     }
@@ -292,7 +287,16 @@ public class HUD_Overlay : VisualElement
 
             if (i >= toolbarActions.Count) continue;
 
-            toolbarButtons[ii].clickable.clicked += () => toolbarActions[ii].action.Invoke();
+            var toolbarButtonAction = new Action(() =>
+            {
+                if (toolbarActions[ii].isConfirmationPrompted)
+                {
+                    toolbarButtons[ii].clickable = new Clickable(() => { });
+                }
+                toolbarActions[ii].action.Invoke();
+            });
+            toolbarButtons[ii].clickable.clicked += toolbarButtonAction;
+            
             toolbarButtons[ii].AllowUIButtonKeyModifiers();
             toolbarButtons[ii].style.backgroundImage = toolbarActions[ii].icon;
         }
@@ -315,6 +319,14 @@ public class HUD_Overlay : VisualElement
 
             resourceIcons[i].style.backgroundImage = resources[i].icon;
             resourceLabels[i].text = $"{resources[i].curAmount} / {resources[i].maxAmount}";
+            if (resources[i].curAmount >= resources[i].maxAmount)
+            {
+                resourceLabels[i].style.color = Color.red;
+            }
+            else
+            {
+                resourceLabels[i].style.color = Color.white;
+            }
         }
     }
 }
@@ -326,16 +338,4 @@ public enum PanelType
     BottomToolbar,
     BuildMenu,
     ConfirmationModal
-}
-
-public enum ToolButtonType
-{
-    DestroySelected
-}
-
-public class ToolbarAction
-{
-    public Action action;
-    public Texture2D icon;
-    public EntityController entity;
 }

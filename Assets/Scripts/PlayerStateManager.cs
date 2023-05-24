@@ -18,6 +18,11 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     private Func<bool, bool> repeatingAction;
     private Action cancelAction;
 
+    private Action modalAcceptAction;
+    private Action modalDeclineAction;
+
+    private List<ToolbarAction> toolbarActions = new List<ToolbarAction>();
+
     private PlayerStateManager()
     {
         Instance = this;
@@ -43,6 +48,29 @@ public class PlayerStateManager : MonoBehaviour, IInputController
 
     private void CheckInputs()
     {
+        if (HandleModalActions()) return;
+        if (HandleSelectionActions()) return;
+        if (HandlePendingActions()) return;
+        if (HandleRepeatingActions()) return;
+        if (HandleToolbarHotkeys()) return;
+    }
+
+    private bool HandleToolbarHotkeys()
+    {
+        if (toolbarActions.Count == 0) return false;
+        foreach (var toolbarAction in toolbarActions)
+        {
+            if (inputManager.PollKeyDown(this, toolbarAction.hotkey))
+            {
+                toolbarAction.action.Invoke();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool HandleSelectionActions()
+    {
         if (inputManager.PollKeyDownIgnoreUI(this, KeyAction.LeftClick))
         {
             if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out var hit, Mathf.Infinity))
@@ -53,39 +81,86 @@ public class PlayerStateManager : MonoBehaviour, IInputController
             {
                 HandleDeselection();
             }
+
+            return true;
+        }
+        else if (inputManager.PollKeyDown(this, KeyAction.CancelSelection))
+        {
+            if (selectedEntity != null)
+            {
+                HandleDeselection();
+            }
+
+            return true;
         }
 
-        else if (pendingAction != null)
+        return false;
+    }
+
+    private bool HandleModalActions()
+    {
+        if (modalAcceptAction == null) return false;
+        if (inputManager.PollKeyDown(this, KeyAction.ConfirmHotkey))
         {
-            if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Confirm))
-            {
-                if (inputManager.PollKey(this, KeyAction.RepeatModifier))
-                {
-                    CompleteAndRepeatPendingAction();
-                }
-                else
-                {
-                    CompletePendingAction();
-                }
-            }
-            else if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.Cancel) ||
-                     inputManager.PollKeyUp(this, KeyAction.Confirm))
-            {
-                CancelPendingAction();
-            }
+            AcceptModalConfirmationWithHotkey();
+            return true;
+        }
+        else if (inputManager.PollKeyDown(this, KeyAction.CancelHotkey))
+        {
+            DeclineModalConfirmationWithHotkey();
+            return true;
         }
 
-        else if (repeatingAction != null)
+        return false;
+    }
+
+    private bool HandleRepeatingActions()
+    {
+        if (repeatingAction == null) return false;
+        if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.ConfirmClick) ||
+            inputManager.PollKeyDown(this, KeyAction.ConfirmHotkey))
         {
-            if (inputManager.PollKeyUp(this, KeyAction.RepeatModifier))
-            {
-                CancelRepeatingAction();
-            }
-            else if (inputManager.PollKeyUp(this, KeyAction.Confirm))
-            {
-                CompleteRepeatingAction();
-            }
+            CompleteRepeatingAction();
+            return true;
         }
+        else if (inputManager.PollKeyDown(this, KeyAction.CancelClick) ||
+                 inputManager.PollKeyUp(this, KeyAction.RepeatModifier) ||
+                 inputManager.PollKeyUp(this, KeyAction.ConfirmClick) ||
+                 inputManager.PollKeyDown(this, KeyAction.CancelClick))
+        {
+            CancelRepeatingAction();
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool HandlePendingActions()
+    {
+        if (pendingAction == null) return false;
+        if (inputManager.PollKeyUpIgnoreUI(this, KeyAction.ConfirmClick) ||
+            inputManager.PollKeyDown(this, KeyAction.ConfirmHotkey))
+        {
+            if (inputManager.PollKey(this, KeyAction.RepeatModifier))
+            {
+                CompleteAndRepeatPendingAction();
+            }
+            else
+            {
+                CompletePendingAction();
+            }
+
+            return true;
+        }
+        else if (inputManager.PollKeyDown(this, KeyAction.CancelClick) ||
+                 inputManager.PollKeyUp(this, KeyAction.ConfirmClick) ||
+                 inputManager.PollKeyDown(this, KeyAction.CancelHotkey))
+        {
+            CancelPendingAction();
+            return true;
+        }
+
+        return false;
     }
 
     private void HandleSelection(RaycastHit hit)
@@ -102,6 +177,7 @@ public class PlayerStateManager : MonoBehaviour, IInputController
 
     private void HandleDeselection()
     {
+        inputManager.Unregister(this, DefaultActionMaps.SelectionActions);
         if (selectedEntity == null) return;
         selectedEntity.Deselect();
         selectedEntity = null;
@@ -112,66 +188,118 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     private void HandleBuildingSelection(BuildingController building)
     {
         if (selectedEntity == building) return;
-        if (selectedEntity != null) selectedEntity.Deselect();
+        if (selectedEntity != null)
+        {
+            HandleDeselection();
+        }
 
         selectedEntity = building;
         selectedEntity.Select();
         UIDocManager.Instance.SetEntityHUD(building);
 
-        var toolbarActions = new List<ToolbarAction>();
+        SetToolbarButtons(building);
+        inputManager.Register(this, DefaultActionMaps.SelectionActions);
+    }
+
+    public void SetToolbarButtons(EntityController entity)
+    {
+        toolbarActions.Clear();
 
         var deleteAction = new ToolbarAction();
-        deleteAction.entity = building;
+        deleteAction.entity = entity;
         deleteAction.icon = deleteIcon;
         deleteAction.action = () =>
         {
-            SetConfirmation(() =>
+            if (deleteAction.isConfirmationPrompted)
+            {
+                SetModalConfirmation(() =>
+                    {
+                        HandleDeselection();
+                        entity.DestroySelf();
+                    }, () =>
+                    {
+                        SetToolbarButtons(entity);
+                    },
+                    "Confirm?",
+                    "Are you sure you want to destroy this building? Resources will not be refunded.");
+            }
+            else
             {
                 HandleDeselection();
-                building.DestroySelf();
-            },
-            "Confirm?",
-            "Are you sure you want to destroy this building? Resources will not be refunded.");
+                entity.DestroySelf();
+            }
+            
         };
+        deleteAction.hotkey = KeyAction.DeleteSelected;
+        deleteAction.isConfirmationPrompted = true;
         toolbarActions.Add(deleteAction);
 
         var upgradeAction = new ToolbarAction();
-        upgradeAction.entity = building;
+        upgradeAction.entity = entity;
         upgradeAction.icon = upgradeIcon;
         upgradeAction.action = () =>
         {
-            SetConfirmation(() =>
+            if (upgradeAction.isConfirmationPrompted)
             {
-                building.Upgrade();
-            },
-            "Confirm?",
-            "Are you sure you want to upgrade this building?");
+                SetModalConfirmation(() =>
+                    {
+                        entity.Upgrade();
+                        SetToolbarButtons(entity);
+                    }, () =>
+                    {
+                        SetToolbarButtons(entity);
+                    },
+                    "Confirm?",
+                    "Are you sure you want to upgrade this building?");
+            }
+            else
+            {
+                entity.Upgrade();
+            }
         };
+        upgradeAction.hotkey = KeyAction.UpgradeSelected;
+        upgradeAction.isConfirmationPrompted = true;
         toolbarActions.Add(upgradeAction);
 
         UIDocManager.Instance.SetToolbarButtons(toolbarActions);
     }
 
-    public void SetConfirmation(Action acceptAction, string title, string description)
+    public void SetModalConfirmation(Action acceptAction, Action declineAction = null, string title = "No Name", string description = "No Desc")
     {
         inputManager.HoldActionMap(this);
-        UIDocManager.Instance.SetConfirmationModalButtons(() => AcceptConfirmation(acceptAction), DeclineConfirmation, title, description);
+        UIDocManager.Instance.SetConfirmationModalButtons(() =>
+        {
+            AcceptModalConfirmation(acceptAction);
+        }, () =>
+        {
+            if (declineAction != null) declineAction.Invoke();
+            DeclineModalConfirmation();
+        }, title, description);
+        inputManager.Register(this, DefaultActionMaps.ModalHotkeys);
     }
 
-    public void AcceptConfirmation(Action action)
+    public void AcceptModalConfirmation(Action action)
     {
+        inputManager.Unregister(this, DefaultActionMaps.ModalHotkeys);
         inputManager.ReleaseActionMap(this);
+        
         action.Invoke();
+        modalAcceptAction = null;
+        modalDeclineAction = null;
     }
 
-    public void DeclineConfirmation()
+    public void DeclineModalConfirmation()
     {
         inputManager.ReleaseActionMap(this);
+        inputManager.Unregister(this, DefaultActionMaps.ModalHotkeys);
+        modalAcceptAction = null;
+        modalDeclineAction = null;
     }
 
-    public void CancelConfirmation()
+    public void CancelModalConfirmation()
     {
         inputManager.ReleaseActionMap(this);
+        inputManager.Unregister(this, DefaultActionMaps.ModalHotkeys);
     }
 
     public void StartPendingAction(Func<bool, bool> action, Action cancellationAction)
@@ -237,4 +365,29 @@ public class PlayerStateManager : MonoBehaviour, IInputController
     {
         repeatingAction.Invoke(true);
     }
+
+    public void AcceptModalConfirmationWithHotkey()
+    {
+        modalAcceptAction.Invoke();
+    }
+
+    public void DeclineModalConfirmationWithHotkey()
+    {
+        modalDeclineAction.Invoke();
+    }
+
+    public void SetModalConfirmationActionsForHotkey(Action acceptAction, Action declineAction)
+    {
+        modalAcceptAction = acceptAction;
+        modalDeclineAction = declineAction;
+    }
+}
+
+public class ToolbarAction
+{
+    public Action action;
+    public Texture2D icon;
+    public EntityController entity;
+    public KeyAction hotkey;
+    public bool isConfirmationPrompted;
 }
