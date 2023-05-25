@@ -88,9 +88,9 @@ public class UIDocManager : MonoBehaviour
         hudOverlay.SetEntityInfo(null);
     }
 
-    public void SetBuildMenu(List<BuildingController> buildingPrefabs, Action<BuildingController> buildAction)
+    public void SetBuildMenu(List<BuildingSO> buildingData, Action<BuildingSO> buildAction)
     {
-        hudOverlay.SetBuildMenu(buildingPrefabs, buildAction);
+        hudOverlay.SetBuildMenu(buildingData, buildAction);
     }
 
     public void ClearBuildMenu()

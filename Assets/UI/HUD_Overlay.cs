@@ -217,10 +217,10 @@ public class HUD_Overlay : VisualElement
         entityDescription.text = entity ? entity.description : string.Empty;
     }
 
-    public void SetBuildMenu(List<BuildingController> buildingPrefabs, Action<BuildingController> buildAction)
+    public void SetBuildMenu(List<BuildingSO> buildingData, Action<BuildingSO> buildAction)
     {
         var buildButtons = buildModal.Q("build-menu").Children().Select(c => c.Children().First()).Where(c => c is Button).Cast<Button>().ToList();
-        for (int i = 0; i < buildingPrefabs.Count; i++)
+        for (int i = 0; i < buildingData.Count; i++)
         {
             int ii = i;
             buildButtons[ii].clickable = new Clickable(() => { });
@@ -231,12 +231,12 @@ public class HUD_Overlay : VisualElement
             var buildButtonActionHotkey = new Action(() =>
             {
                 buildButtons[ii].clickable = new Clickable(() => { });
-                buildAction.Invoke(buildingPrefabs[ii]);
+                buildAction.Invoke(buildingData[ii]);
             });
 
             buildButtons[ii].clickable.clicked += buildButtonActionHotkey;
             buildButtons[ii].AllowUIButtonKeyModifiers();
-            buildButtons[ii].text = buildingPrefabs[ii].displayName;
+            buildButtons[ii].text = buildingData[ii].displayName;
         }
     }
 
@@ -318,8 +318,8 @@ public class HUD_Overlay : VisualElement
             if (i >= resources.Count) continue;
 
             resourceIcons[i].style.backgroundImage = resources[i].icon;
-            resourceLabels[i].text = $"{resources[i].curAmount} / {resources[i].maxAmount}";
-            if (resources[i].curAmount >= resources[i].maxAmount)
+            resourceLabels[i].text = $"{resources[i].CurAmount} / {resources[i].maxAmount}";
+            if (resources[i].CurAmount >= resources[i].maxAmount)
             {
                 resourceLabels[i].style.color = Color.red;
             }

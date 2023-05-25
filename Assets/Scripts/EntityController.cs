@@ -10,6 +10,12 @@ public class EntityController : MonoBehaviour
     public string description;
     public int level;
 
+    public int goldCost;
+    public int stoneCost;
+    public int woodCost;
+    public int ironCost;
+    public int populationCost;
+
     private Material material;
 
     void Awake()

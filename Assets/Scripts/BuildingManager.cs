@@ -7,7 +7,7 @@ using UnityEngine;
 public class BuildingManager : MonoBehaviour
 {
     public static BuildingManager Instance { get; private set; }
-    public List<BuildingController> buildingPrefabs = new List<BuildingController>();
+    public List<BuildingSO> buildingData = new List<BuildingSO>();
 
     private BuildingManager()
     {
@@ -16,35 +16,35 @@ public class BuildingManager : MonoBehaviour
 
     private void Start()
     {
-        UIDocManager.Instance.SetBuildMenu(buildingPrefabs, BuildPendingHandler);
+        UIDocManager.Instance.SetBuildMenu(buildingData, BuildPendingHandler);
     }
 
-    private void BuildPendingHandler(BuildingController buildingPrefab)
+    private void BuildPendingHandler(BuildingSO buildingObject)
     {
         PlayerStateManager.Instance.SetModalConfirmation(() =>
             {
-                BuildPreview(buildingPrefab);
-                UIDocManager.Instance.SetBuildMenu(buildingPrefabs, BuildPendingHandler);
+                BuildPreview(buildingObject);
+                UIDocManager.Instance.SetBuildMenu(buildingData, BuildPendingHandler);
             }, () =>
             {
-                UIDocManager.Instance.SetBuildMenu(buildingPrefabs, BuildPendingHandler);
+                UIDocManager.Instance.SetBuildMenu(buildingData, BuildPendingHandler);
             },
             "Confirm?",
             "Are you sure you want to purchase this building?");
     }
 
-    private void BuildPreview(BuildingController buildingPrefab)
+    private void BuildPreview(BuildingSO buildingObject)
     {
-        BuildPreviewer.Instance.StartPreview(buildingPrefab.transform);
-        PlayerStateManager.Instance.StartPendingAction((continueIteration) => Build(buildingPrefab, continueIteration), CancelBuild);
+        BuildPreviewer.Instance.StartPreview(buildingObject.prefab.transform);
+        PlayerStateManager.Instance.StartPendingAction((continueIteration) => Build(buildingObject, continueIteration), CancelBuild);
     }
 
-    private bool Build(BuildingController buildingPrefab, bool continueIteration = false)
+    private bool Build(BuildingSO buildingObject, bool continueIteration = false)
     {
-        if (!BuildPreviewer.Instance.CanBuild())
+        if (!BuildPreviewer.Instance.HasRoomToBuild() || !EconomyManager.Instance.TryPurchase(buildingObject))
         {
             BuildPreviewer.Instance.StopPreview();
-            BuildPreview(buildingPrefab);
+            BuildPreview(buildingObject);
             return false;
         }
 
@@ -54,14 +54,12 @@ public class BuildingManager : MonoBehaviour
         }
         
         var buildTransform = BuildPreviewer.Instance.transform;
-        var building = Instantiate(buildingPrefab, buildTransform.position, buildTransform.rotation);
+        var bounds = buildingObject.prefab.GetComponent<MeshRenderer>().bounds.size;
+        var offsetPos = new Vector3(Mathf.FloorToInt(bounds.x) % 2 != 0 ? 0.5f : 0, 0, Mathf.FloorToInt(bounds.z) % 2 != 0 ? 0.5f : 0);
+        var buildingGameObject = Instantiate(buildingObject.prefab, buildTransform.position + offsetPos, buildTransform.rotation);
+        var building = buildingGameObject.GetOrAddComponent<BuildingController>();
         var resourceGenerator = building.GetOrAddComponent<ResourceGenerator>();
-        resourceGenerator.goldGenerationRate = 10;
-        resourceGenerator.stoneGenerationRate = 1;
-        resourceGenerator.woodGenerationRate = 1;
-        resourceGenerator.ironGenerationRate = 1;
-        resourceGenerator.populationConsumptionAmount = 1;
-        resourceGenerator.populationGenerationAmount = 4;
+        buildingObject.ConvertData(building);
         return true;
     }
 

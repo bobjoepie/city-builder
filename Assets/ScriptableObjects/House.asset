@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808308a6301d4ca4e8bd2c6afb793c3f, type: 3}
+  m_Name: House
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 8704213716359361530, guid: f7fd6b71b64f51a408eac087c98a686c, type: 3}
+  thumbnail: {fileID: 2800000, guid: bc718cbaa3d8047c590aaa8f22996a9e, type: 3}
+  displayName: House
+  description: As basic as it gets
+  level: 0
+  goldCost: 50
+  stoneCost: 1
+  woodCost: 2
+  ironCost: 0
+  populationCost: 0
+  goldGenerationRate: 1
+  stoneGenerationRate: 0
+  woodGenerationRate: 0
+  ironGenerationRate: 0
+  populationGenerationAmount: 2
+  populationConsumptionAmount: 0

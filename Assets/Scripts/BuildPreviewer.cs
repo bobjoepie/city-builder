@@ -65,10 +65,11 @@ public class BuildPreviewer : MonoBehaviour, IInputController
     public void StartPreview(Transform buildingPreview)
     {
         CheckMousePosition();
-        displayObject = Instantiate(buildingPreview, transform);
-        Destroy(displayObject.GetComponent<BuildingController>());
+        var bounds = buildingPreview.GetComponent<MeshRenderer>().bounds.size;
+        var offsetPos = new Vector3(Mathf.FloorToInt(bounds.x) % 2 != 0 ? 0.5f : 0, 0, Mathf.FloorToInt(bounds.z) % 2 != 0 ? 0.5f : 0);
+        displayObject = Instantiate(buildingPreview, transform.position + offsetPos, transform.rotation, transform);
         displayObject.GetComponent<MeshRenderer>().material = previewMaterial;
-        displayObject.GetComponent<MeshRenderer>().material.color = CanBuild() ? Color.green : Color.red;
+        displayObject.GetComponent<MeshRenderer>().material.color = HasRoomToBuild() ? Color.green : Color.red;
         displayObject.GetComponent<Collider>().isTrigger = true;
     }
 
@@ -91,7 +92,7 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<BuildingController>(out var building))
+        if (other.gameObject.TryGetComponent<BuildAreaCollisionController>(out var building))
         {
             displayObject.GetComponent<MeshRenderer>().material.color = Color.red;
         }
@@ -99,25 +100,29 @@ public class BuildPreviewer : MonoBehaviour, IInputController
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.gameObject.TryGetComponent<BuildingController>(out var _))
+        if (!other.gameObject.TryGetComponent<BuildAreaCollisionController>(out var _))
         {
             return;
         }
 
-        if (CanBuild())
+        if (HasRoomToBuild())
         {
             displayObject.GetComponent<MeshRenderer>().material.color = Color.green;
         }
     }
 
-    public bool CanBuild()
+    public bool HasRoomToBuild()
     {
-        if (displayObject == null || !displayObject.TryGetComponent<Collider>(out var collider)) return false;
-        var extents = displayObject.GetComponent<Collider>().bounds.extents;
-        var overlaps = Physics.OverlapBox(transform.position, extents);
+        if (displayObject == null || !displayObject.GetChild(0).TryGetComponent<Collider>(out var collider)) return false;
+        var extents = displayObject.GetChild(0).GetComponent<Collider>().bounds.extents;
+        var bounds = displayObject.GetComponent<MeshRenderer>().bounds.size;
+        var offsetPos = new Vector3(Mathf.FloorToInt(bounds.x) % 2 != 0 ? 0.5f : 0, 0, Mathf.FloorToInt(bounds.z) % 2 != 0 ? 0.5f : 0);
+        var overlaps = Physics.OverlapBox(transform.position + offsetPos, extents);
         foreach (var overlap in overlaps)
         {
-            if (overlap.transform != transform.GetChild(0) && overlap.gameObject.TryGetComponent<BuildingController>(out var building))
+            if (!overlap.transform.IsChildOf(transform) &&
+                !overlap.transform.IsChildOf(transform.GetChild(0)) &&
+                overlap.gameObject.TryGetComponent<BuildAreaCollisionController>(out var building))
             {
                 return false;
             }
